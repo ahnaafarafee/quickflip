@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Theme } from "@radix-ui/themes";
 import "./globals.css";
+import Navbar from "./components/Navbar";
 
 export const metadata: Metadata = {
   title: "QuickFlip",
@@ -21,7 +22,10 @@ export default function RootLayout({
       <html lang="en">
         <body>
           <ThemeProvider attribute="class">
-            <Theme accentColor="blue">{children}</Theme>
+            <Theme accentColor="blue">
+              <Navbar />
+              {children}
+            </Theme>
           </ThemeProvider>
         </body>
       </html>
