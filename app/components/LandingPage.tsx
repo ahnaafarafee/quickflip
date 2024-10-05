@@ -1,10 +1,10 @@
 "use client";
+import { ArrowRightIcon } from "@radix-ui/react-icons";
+import { Button, TextField } from "@radix-ui/themes";
 import { Brain, Sparkles, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { playFairDisplay } from "../fonts";
-import { Button, TextField } from "@radix-ui/themes";
-import { ArrowLeftIcon, ArrowRightIcon } from "@radix-ui/react-icons";
 
 const testimonials = [
   {

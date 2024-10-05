@@ -4,8 +4,9 @@ import { ThemeProvider } from "next-themes";
 
 import { ClerkProvider } from "@clerk/nextjs";
 import { Theme } from "@radix-ui/themes";
+import Navbar from "./components/Navbar/Navbar";
+import { poppins } from "./fonts";
 import "./globals.css";
-import Navbar from "./components/Navbar";
 
 export const metadata: Metadata = {
   title: "QuickFlip",
@@ -20,7 +21,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body>
+        <body className={poppins.className}>
           <ThemeProvider attribute="class">
             <Theme accentColor="blue">
               <Navbar />
