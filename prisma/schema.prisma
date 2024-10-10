@@ -21,4 +21,28 @@ model User {
   username  String?
   firstName String?
   lastName  String?
+  decks     Deck[]
+}
+
+model Deck {
+  id        String   @id @default(cuid())
+  name      String
+  tags      String?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  cards     Card[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tags])
+}
+
+model Card {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  deck      Deck     @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  deckId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
