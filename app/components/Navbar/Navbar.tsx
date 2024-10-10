@@ -22,7 +22,7 @@ const Navbar = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="px-4 lg:px-6 h-16 flex items-center backdrop-blur-md bg-white/30 dark:bg-gray-800/30 w-full !z-50">
+    <header className="px-4 lg:px-6 h-16 flex items-center backdrop-blur-md bg-white/30 dark:bg-gray-950 w-full !z-50">
       {/* Logo */}
       <Link className="flex items-center justify-center" href="/">
         <span className="text-xl font-bold text-gray-900 dark:text-white">
@@ -33,7 +33,6 @@ const Navbar = () => {
       {/* Desktop Navigation */}
       <nav className="ml-auto hidden md:flex justify-center items-center gap-4 sm:gap-6">
         {userId && <Link href="/decks">Decks</Link>}
-        {userId && <Link href="/decks/create">Create</Link>}
         {userId && <Link href="/learn">Learn</Link>}
         {userId && <Link href="/analytics">Analytics</Link>}
 
@@ -58,9 +57,9 @@ const Navbar = () => {
           </Dialog.Trigger>
 
           <Dialog.Portal>
-            <Dialog.Overlay className="fixed inset-0 bg-black/50 z-40" />
+            <Dialog.Overlay className="fixed inset-0 bg-black/50 dark:bg-black/80 z-40" />
             <Dialog.Content
-              className="fixed inset-y-0 left-0 bg-white dark:bg-gray-800 z-50 p-6 w-64 transform transition-transform translate-x-0 shadow-lg"
+              className="fixed inset-y-0 left-0 bg-white dark:bg-gray-950 z-50 p-6 w-64 transform transition-transform translate-x-0 shadow-lg"
               style={{ transition: "transform 0.3s ease-in-out" }}
             >
               <button
@@ -79,11 +78,6 @@ const Navbar = () => {
                 {userId && (
                   <Link href="/decks" onClick={() => setOpen(false)}>
                     Decks
-                  </Link>
-                )}
-                {userId && (
-                  <Link href="/decks/create" onClick={() => setOpen(false)}>
-                    Create
                   </Link>
                 )}
                 {userId && (
