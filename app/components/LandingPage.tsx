@@ -1,10 +1,11 @@
-"use client";
 import { ArrowRightIcon } from "@radix-ui/react-icons";
 import { Button, TextField } from "@radix-ui/themes";
 import { Brain, Sparkles, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { playFairDisplay } from "../fonts";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
 const testimonials = [
   {
@@ -34,9 +35,11 @@ const testimonials = [
 ];
 
 export default function LandingPage() {
+  const { userId } = auth();
+  if (userId) redirect("/decks");
+
   return (
     <div className="flex flex-col min-h-screen bg-color">
-      
       <main className="flex-1">
         <section className="w-full py-12 md:py-24 px-4 md:px-6 mt-6">
           <div className="container mx-auto">
