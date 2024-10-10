@@ -8,3 +8,13 @@ export async function createUser(user: any) {
     console.log(error);
   }
 }
+
+export async function deleteUser(clerkId: string) {
+  try {
+    await prisma.user.delete({
+      where: { clerkId: clerkId },
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
