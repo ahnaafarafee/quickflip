@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ClerkLoading,
   SignInButton,
   SignedIn,
   SignedOut,
@@ -9,6 +10,7 @@ import {
 } from "@clerk/nextjs";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Cross2Icon, HamburgerMenuIcon } from "@radix-ui/react-icons";
+import { Spinner } from "@radix-ui/themes";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -37,6 +39,9 @@ const Navbar = ({ user }: Props) => {
         {user && <Link href="/learn">Learn</Link>}
         {user && <Link href="/analytics">Analytics</Link>}
 
+        <ClerkLoading>
+          <Spinner />
+        </ClerkLoading> 
         <SignedOut>
           <SignInButton />
         </SignedOut>

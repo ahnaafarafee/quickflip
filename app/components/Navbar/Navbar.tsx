@@ -1,8 +1,8 @@
-import { currentUser } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import NavbarClient from "./NavbarClient";
 
 const Navbar = async () => {
-  const user = await currentUser();
+  let user = await currentUser();
 
   return <NavbarClient user={!!user} />;
 };

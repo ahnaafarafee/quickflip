@@ -1,6 +1,4 @@
-import React from "react";
-
-const LearnPage = () => {
+const LearnPage = async () => {
   return <div>LearnPage</div>;
 };
 
