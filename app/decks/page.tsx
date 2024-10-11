@@ -2,50 +2,46 @@
 
 import { deckFormSchema } from "@/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Deck } from "@prisma/client";
+import axios from "axios";
 import { Plus, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
-const form = useForm<z.infer<typeof deckFormSchema>>({
-  resolver: zodResolver(deckFormSchema),
-  defaultValues: {
-    name: "",
-    tags: "",
-  },
-});
-
-type Deck = {
-  id: string;
-  name: string;
-  tag: string;
-  cardCount: number;
-};
-
 export default function CustomDeckPage() {
-  const [decks, setDecks] = useState<Deck[]>([
-    { id: "1", name: "JavaScript Basics", tag: "Programming", cardCount: 20 },
-    { id: "2", name: "React Hooks", tag: "Web Development", cardCount: 15 },
-    { id: "3", name: "CSS Flexbox", tag: "Web Design", cardCount: 10 },
-  ]);
-
-  const [newDeckName, setNewDeckName] = useState("");
-  const [newDeckTag, setNewDeckTag] = useState("");
+  const [decks, setDecks] = useState<Deck[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deckCreated, setDeckCreated] = useState(false); // New state variable
 
-  const handleCreateDeck = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newDeckName.trim() && newDeckTag.trim()) {
-      const newDeck: Deck = {
-        id: (decks.length + 1).toString(),
-        name: newDeckName.trim(),
-        tag: newDeckTag.trim(),
-        cardCount: 0,
-      };
-      setDecks([...decks, newDeck]);
-      setNewDeckName("");
-      setNewDeckTag("");
-      setIsModalOpen(false);
+  useEffect(() => {
+    const fetchDecks = async () => {
+      try {
+        const response = await axios.get("/api/decks");
+        setDecks(response.data);
+      } catch (error) {
+        console.error("Error fetching decks:", error);
+      }
+    };
+
+    fetchDecks();
+  }, [deckCreated]); // Add deckCreated as a dependency
+
+  const form = useForm<z.infer<typeof deckFormSchema>>({
+    resolver: zodResolver(deckFormSchema),
+    defaultValues: {
+      name: "",
+      tags: "",
+    },
+  });
+
+  const onSubmit = async (values: z.infer<typeof deckFormSchema>) => {
+    try {
+      await axios.post("/api/decks", values);
+      setDeckCreated((prev) => !prev); // Toggle the deckCreated state to trigger useEffect
+      setIsModalOpen(false); // Close the modal after submission
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -54,27 +50,24 @@ export default function CustomDeckPage() {
       <h1 className="text-4xl font-bold mb-8 text-center">Decks</h1>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {decks.length <= 0 && <span>You haven't created any decks yet!</span>}
+
         {decks.map((deck) => (
           <div
             key={deck.id}
             className="dark:bg-gray-900 shadow-lg rounded-lg p-6 transition-all duration-300 hover:scale-105 hover:cursor-pointer hover:shadow-xl"
           >
             <h2 className="text-xl font-semibold mb-2">{deck.name}</h2>
-            <p className="text-sm text-gray-400 mb-4">{deck.tag}</p>
+            <p className="text-sm text-gray-400 mb-4">{deck.tags}</p>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-500">
-                {deck.cardCount} cards
-              </span>
-              <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors duration-300">
-                Study
-              </button>
+              <button className="btn-default">Study</button>
             </div>
           </div>
         ))}
       </div>
 
       <button
-        className="fixed bottom-8 right-8 w-16 h-16 bg-blue-600 text-white rounded-full shadow-lg transition-all duration-500 hover:rotate-90 hover:scale-110 hover:bg-blue-700 flex items-center justify-center"
+        className="btn-rounded-fixed"
         onClick={() => setIsModalOpen(true)}
       >
         <Plus className="w-8 h-8" />
@@ -86,13 +79,13 @@ export default function CustomDeckPage() {
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-semibold">Create New Deck</h2>
               <button
-                className="text-gray-400 hover:text-black dark:hover:text-white transition-colors duration-300 "
+                className="text-gray-400 hover:text-black dark:hover:text-white transition-colors duration-300"
                 onClick={() => setIsModalOpen(false)}
               >
                 <X className="w-6 h-6 transition-transform duration-500 hover:rotate-90" />
               </button>
             </div>
-            <form onSubmit={handleCreateDeck} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="space-y-2">
                 <label
                   htmlFor="deckName"
@@ -103,13 +96,14 @@ export default function CustomDeckPage() {
                 <input
                   id="deckName"
                   type="text"
-                  value={newDeckName}
-                  onChange={(e) => setNewDeckName(e.target.value)}
+                  {...form.register("name")}
                   placeholder="Enter deck name"
-                  required
-                  className="w-full px-3 py-2 dark:bg-gray-700 border dark:border-gray-600 rounded-md dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="input-field"
                 />
               </div>
+              <span className="text-red-500">
+                {form.formState.errors.name?.message}
+              </span>
               <div className="space-y-2">
                 <label
                   htmlFor="deckTag"
@@ -120,17 +114,15 @@ export default function CustomDeckPage() {
                 <input
                   id="deckTag"
                   type="text"
-                  value={newDeckTag}
-                  onChange={(e) => setNewDeckTag(e.target.value)}
+                  {...form.register("tags")}
                   placeholder="Enter deck tag"
-                  required
-                  className="w-full px-3 py-2 dark:bg-gray-700 border dark:border-gray-600 rounded-md dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="input-field"
                 />
               </div>
-              <button
-                type="submit"
-                className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all duration-300"
-              >
+              <span className="text-red-500">
+                {form.formState.errors.tags?.message}
+              </span>
+              <button type="submit" className="w-full btn-default">
                 Create Deck
               </button>
             </form>

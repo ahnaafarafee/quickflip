@@ -3,6 +3,24 @@ import { deckFormSchema } from "@/schema";
 import { NextRequest, NextResponse } from "next/server";
 import { clerkClient, getAuth } from "@clerk/nextjs/server";
 
+export async function GET(request: NextRequest) {
+  const { userId } = getAuth(request);
+
+  if (!userId)
+    return NextResponse.json(
+      { message: "You are not authorize to perform this action." },
+      { status: 400 }
+    );
+
+  const user = await clerkClient().users.getUser(userId);
+
+  const decks = await prisma.deck.findMany({
+    where: { userId: user.publicMetadata.userId as string },
+  });
+
+  return NextResponse.json(decks, { status: 200 });
+}
+
 export async function POST(request: NextRequest) {
   const { userId } = getAuth(request);
   if (!userId)
