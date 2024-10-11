@@ -1,7 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { deckFormSchema } from "@/schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, X } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+
+const form = useForm<z.infer<typeof deckFormSchema>>({
+  resolver: zodResolver(deckFormSchema),
+  defaultValues: {
+    name: "",
+    tags: "",
+  },
+});
 
 type Deck = {
   id: string;
@@ -45,7 +57,7 @@ export default function CustomDeckPage() {
         {decks.map((deck) => (
           <div
             key={deck.id}
-            className="dark:bg-gray-900 shadow-lg rounded-lg p-6 transition-all duration-300 hover:scale-105 hover:shadow-xl"
+            className="dark:bg-gray-900 shadow-lg rounded-lg p-6 transition-all duration-300 hover:scale-105 hover:cursor-pointer hover:shadow-xl"
           >
             <h2 className="text-xl font-semibold mb-2">{deck.name}</h2>
             <p className="text-sm text-gray-400 mb-4">{deck.tag}</p>
@@ -62,7 +74,7 @@ export default function CustomDeckPage() {
       </div>
 
       <button
-        className="fixed bottom-8 right-8 w-16 h-16 bg-blue-600 text-white rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:bg-blue-700 flex items-center justify-center"
+        className="fixed bottom-8 right-8 w-16 h-16 bg-blue-600 text-white rounded-full shadow-lg transition-all duration-500 hover:rotate-90 hover:scale-110 hover:bg-blue-700 flex items-center justify-center"
         onClick={() => setIsModalOpen(true)}
       >
         <Plus className="w-8 h-8" />
@@ -74,10 +86,10 @@ export default function CustomDeckPage() {
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-semibold">Create New Deck</h2>
               <button
-                className="text-gray-400 hover:text-black dark:hover:text-white transition-colors duration-300"
+                className="text-gray-400 hover:text-black dark:hover:text-white transition-colors duration-300 "
                 onClick={() => setIsModalOpen(false)}
               >
-                <X className="w-6 h-6" />
+                <X className="w-6 h-6 transition-transform duration-500 hover:rotate-90" />
               </button>
             </div>
             <form onSubmit={handleCreateDeck} className="space-y-6">
@@ -117,7 +129,7 @@ export default function CustomDeckPage() {
               </div>
               <button
                 type="submit"
-                className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-300"
+                className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all duration-300"
               >
                 Create Deck
               </button>
