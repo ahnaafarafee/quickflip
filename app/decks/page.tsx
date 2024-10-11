@@ -6,6 +6,7 @@ import { Deck } from "@prisma/client";
 import { Spinner } from "@radix-ui/themes";
 import axios, { AxiosError } from "axios";
 import { Ban, Plus, X } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -75,22 +76,24 @@ export default function CustomDeckPage() {
           {decks.length <= 0 && <span>You haven't created any decks yet!</span>}
 
           {decks.map((deck) => (
-            <div
-              key={deck.id}
-              className="dark:bg-gray-900 shadow-lg rounded-lg p-6 transition-all duration-300 hover:scale-105 hover:cursor-pointer hover:shadow-xl"
-            >
-              <h2 className="text-xl font-semibold mb-2">{deck.name}</h2>
-              <p className="text-sm text-gray-400 mb-4">{deck.tags}</p>
-              <p className="text-sm text-gray-400 mb-4">
-                Last Studied: {new Date(deck.updatedAt).toDateString()}
-              </p>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-500">
-                  {deck._count.cards} cards
-                </span>
-                <button className="btn-default">Study</button>
+            <Link href={`/decks/${deck.id}`}>
+              <div
+                key={deck.id}
+                className="dark:bg-gray-900 shadow-lg rounded-lg p-6 transition-all duration-300 hover:scale-105 hover:cursor-pointer hover:shadow-xl"
+              >
+                <h2 className="text-xl font-semibold mb-2">{deck.name}</h2>
+                <p className="text-sm text-gray-400 mb-4">{deck.tags}</p>
+                <p className="text-sm text-gray-400 mb-4">
+                  Last Studied: {new Date(deck.updatedAt).toDateString()}
+                </p>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-500">
+                    {deck._count.cards} cards
+                  </span>
+                  <button className="btn-default">Study</button>
+                </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}
