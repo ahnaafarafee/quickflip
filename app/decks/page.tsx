@@ -3,29 +3,42 @@
 import { deckFormSchema } from "@/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Deck } from "@prisma/client";
+import { Spinner } from "@radix-ui/themes";
 import axios from "axios";
+import delay from "delay";
 import { Plus, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import DecksLoadingSkeleton from "../components/DecksLoadingSkeleton";
+
+interface DeckWithCount extends Deck {
+  _count: {
+    cards: number;
+  };
+}
 
 export default function CustomDeckPage() {
-  const [decks, setDecks] = useState<Deck[]>([]);
+  const [decks, setDecks] = useState<DeckWithCount[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [deckCreated, setDeckCreated] = useState(false); // New state variable
+  const [isSubmitting, setSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchDecks = async () => {
+      setIsLoading(true);
       try {
         const response = await axios.get("/api/decks");
         setDecks(response.data);
       } catch (error) {
         console.error("Error fetching decks:", error);
+      } finally {
+        setIsLoading(false); // End loading
       }
     };
 
     fetchDecks();
-  }, [deckCreated]); // Add deckCreated as a dependency
+  }, [isModalOpen]); // Add deckCreated as a dependency
 
   const form = useForm<z.infer<typeof deckFormSchema>>({
     resolver: zodResolver(deckFormSchema),
@@ -37,34 +50,46 @@ export default function CustomDeckPage() {
 
   const onSubmit = async (values: z.infer<typeof deckFormSchema>) => {
     try {
-      await axios.post("/api/decks", values);
-      setDeckCreated((prev) => !prev); // Toggle the deckCreated state to trigger useEffect
+      setSubmitting(true);
+      await axios
+        .post("/api/decks", values)
+        .then(() => form.reset())
+        .finally(() => setSubmitting(false));
       setIsModalOpen(false); // Close the modal after submission
     } catch (error) {
+      setSubmitting(false);
       console.log(error);
     }
   };
 
   return (
     <div className="min-h-screen dark:bg-gray-950 dark:text-gray-100 p-8">
-      <h1 className="text-4xl font-bold mb-8 text-center">Decks</h1>
+      {isLoading ? (
+        <DecksLoadingSkeleton />
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {decks.length <= 0 && <span>You haven't created any decks yet!</span>}
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {decks.length <= 0 && <span>You haven't created any decks yet!</span>}
-
-        {decks.map((deck) => (
-          <div
-            key={deck.id}
-            className="dark:bg-gray-900 shadow-lg rounded-lg p-6 transition-all duration-300 hover:scale-105 hover:cursor-pointer hover:shadow-xl"
-          >
-            <h2 className="text-xl font-semibold mb-2">{deck.name}</h2>
-            <p className="text-sm text-gray-400 mb-4">{deck.tags}</p>
-            <div className="flex justify-between items-center">
-              <button className="btn-default">Study</button>
+          {decks.map((deck) => (
+            <div
+              key={deck.id}
+              className="dark:bg-gray-900 shadow-lg rounded-lg p-6 transition-all duration-300 hover:scale-105 hover:cursor-pointer hover:shadow-xl"
+            >
+              <h2 className="text-xl font-semibold mb-2">{deck.name}</h2>
+              <p className="text-sm text-gray-400 mb-4">{deck.tags}</p>
+              <p className="text-sm text-gray-400 mb-4">
+                Last Studied: {new Date(deck.updatedAt).toDateString()}
+              </p>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-500">
+                  {deck._count.cards} cards
+                </span>
+                <button className="btn-default">Study</button>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       <button
         className="btn-rounded-fixed"
@@ -122,8 +147,18 @@ export default function CustomDeckPage() {
               <span className="text-red-500">
                 {form.formState.errors.tags?.message}
               </span>
-              <button type="submit" className="w-full btn-default">
-                Create Deck
+              <button
+                disabled={isSubmitting}
+                type="submit"
+                className="w-full btn-default"
+              >
+                {isSubmitting ? (
+                  <div className="flex items-center justify-center">
+                    <Spinner />
+                  </div>
+                ) : (
+                  "Create Deck"
+                )}
               </button>
             </form>
           </div>
