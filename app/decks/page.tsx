@@ -4,9 +4,8 @@ import { deckFormSchema } from "@/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Deck } from "@prisma/client";
 import { Spinner } from "@radix-ui/themes";
-import axios from "axios";
-import delay from "delay";
-import { Plus, X } from "lucide-react";
+import axios, { AxiosError } from "axios";
+import { Ban, Plus, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -23,6 +22,7 @@ export default function CustomDeckPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchDecks = async () => {
@@ -31,7 +31,7 @@ export default function CustomDeckPage() {
         const response = await axios.get("/api/decks");
         setDecks(response.data);
       } catch (error) {
-        console.error("Error fetching decks:", error);
+        setError("Error fetching decks");
       } finally {
         setIsLoading(false); // End loading
       }
@@ -58,7 +58,11 @@ export default function CustomDeckPage() {
       setIsModalOpen(false); // Close the modal after submission
     } catch (error) {
       setSubmitting(false);
-      console.log(error);
+      if (error instanceof AxiosError) {
+        setError(error.response?.data.message);
+      } else {
+        setError("Something went wrong!");
+      }
     }
   };
 
@@ -160,6 +164,11 @@ export default function CustomDeckPage() {
                   "Create Deck"
                 )}
               </button>
+              {error && (
+                <div className="bg-red-500/50 p-2 text-sm flex items-center gap-2">
+                  <Ban /> {error}
+                </div>
+              )}
             </form>
           </div>
         </div>
