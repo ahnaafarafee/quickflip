@@ -165,7 +165,7 @@ export default function CustomDeckPage() {
                 )}
               </button>
               {error && (
-                <div className="bg-red-500/50 p-2 text-sm flex items-center gap-2">
+                <div className="bg-red-500/50 p-2 text-sm flex items-center gap-2 rounded-lg">
                   <Ban /> {error}
                 </div>
               )}

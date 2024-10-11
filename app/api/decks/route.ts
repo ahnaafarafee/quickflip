@@ -43,12 +43,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(validation.error.errors, { status: 400 });
 
   const existingName = await prisma.deck.findFirst({
-    where: { name: body.name },
+    where: { name: body.name, userId: user.publicMetadata.userId as string },
   });
 
   if (existingName)
     return NextResponse.json(
-      { message: "This name has already been used. Try different name!" },
+      { message: "This name has already been used. Try using different name!" },
       { status: 400 }
     );
 
