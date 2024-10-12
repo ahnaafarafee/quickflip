@@ -39,8 +39,9 @@ model Deck {
 
 model Card {
   id        String   @id @default(cuid())
-  question  String
-  answer    String
+  front     String
+  back      String
+  tag       String?
   deck      Deck     @relation(fields: [deckId], references: [id], onDelete: Cascade)
   deckId    String
   createdAt DateTime @default(now())
