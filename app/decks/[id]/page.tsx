@@ -1,5 +1,6 @@
 "use client";
 
+import SingleDeckLoadingSkeleton from "@/app/components/SingleDeckLoadingSkeleton";
 import { Deck } from "@prisma/client";
 import axios, { AxiosError } from "axios";
 import { useEffect, useState } from "react";
@@ -36,40 +37,51 @@ const cards = [
 const SingleDeckPage = ({ params: { id } }: Props) => {
   const [deck, setDeck] = useState<Deck>();
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchDeck = async () => {
+      setIsLoading(true);
       try {
         const response = await axios.get(`/api/decks/${id}`);
         setDeck(response.data);
       } catch (error) {
-        if (error instanceof AxiosError) setError(error.response?.data.message);
-        else setError("Error Fetching Deck Info!");
+        if (error instanceof AxiosError) {
+          setError(error.response?.data.message);
+        } else {
+          setError("Error Fetching Deck Info!");
+        }
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchDeck();
-  }, [id]);
+  }, []);
 
-  return (
-    <div className="min-h-screen dark:bg-gray-950 dark:text-gray-100 p-8">
-      {error && <div className="text-red-500">{error}</div>}
-      {deck && (
+  if (isLoading) {
+    return <SingleDeckLoadingSkeleton />;
+  }
+
+  if (deck) {
+    return (
+      <div className="min-h-screen dark:bg-gray-950 dark:text-gray-100 p-8">
+        {error && <div className="text-red-500">{error}</div>}
         <div className="max-w-3xl mx-auto dark:bg-gray-900 p-6 rounded-lg shadow-lg">
           <h2 className="text-2xl font-semibold mb-4">{deck.name}</h2>
           <p className="light:text-gray-600 mb-2">
             <strong>Tags:</strong> {deck.tags || "None"}
           </p>
           <p className="light:text-gray-600 mb-2">
-            <strong>Created At: </strong>
+            <strong>Created At:</strong>{" "}
             {new Date(deck.createdAt).toDateString()}
           </p>
           <p className="light:text-gray-600 mb-2">
-            <strong>Updated At: </strong>
+            <strong>Updated At:</strong>{" "}
             {new Date(deck.updatedAt).toDateString()}
           </p>
           <p className="light:text-gray-600 mb-2">
-            <strong>Last Studied: </strong>
+            <strong>Last Studied:</strong>{" "}
             {new Date(deck.updatedAt).toDateString()}
           </p>
           <button className="btn-default mt-4 mb-4">Study Now</button>
@@ -89,9 +101,11 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
             </div>
           ))}
         </div>
-      )}
-    </div>
-  );
+      </div>
+    );
+  }
+
+  return null; // Return nothing if not loading and no deck
 };
 
 export default SingleDeckPage;
