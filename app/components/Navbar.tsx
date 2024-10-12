@@ -6,21 +6,28 @@ import {
   SignedIn,
   SignedOut,
   UserButton,
+  useAuth,
   useClerk,
 } from "@clerk/nextjs";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Cross2Icon, HamburgerMenuIcon } from "@radix-ui/react-icons";
 import { Spinner } from "@radix-ui/themes";
 import Link from "next/link";
-import { usePathname } from "next/navigation"; // Use usePathname
+import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { useAuth } from "@clerk/nextjs";
 
 const Navbar = () => {
   const { signOut, openUserProfile } = useClerk();
   const { userId } = useAuth();
-  const currentPath = usePathname(); // Use usePathname
+  const currentPath = usePathname();
   const [open, setOpen] = useState(false);
+
+  const navLinks = [
+    { name: "Decks", href: "/decks" },
+    { name: "Create", href: "/create" },
+    { name: "Learn", href: "/learn" },
+    { name: "Analytics", href: "/analytics" },
+  ];
 
   return (
     <header className="px-4 lg:px-6 h-16 flex items-center backdrop-blur-md bg-white/30 dark:bg-gray-950 w-full !z-50">
@@ -32,44 +39,14 @@ const Navbar = () => {
       </Link>
       {/* Desktop Navigation */}
       <nav className="ml-auto hidden md:flex justify-center items-center gap-4 sm:gap-6">
-        {userId && (
-          <Link href="/decks">
-            <span
-              className={currentPath.startsWith("/decks") ? "font-bold" : ""}
-            >
-              Decks
-            </span>
-          </Link>
-        )}
-        {userId && (
-          <Link href="/create">
-            <span
-              className={currentPath.startsWith("/create") ? "font-bold" : ""}
-            >
-              Create
-            </span>
-          </Link>
-        )}
-        {userId && (
-          <Link href="/learn">
-            <span
-              className={currentPath.startsWith("/learn") ? "font-bold" : ""}
-            >
-              Learn
-            </span>
-          </Link>
-        )}
-        {userId && (
-          <Link href="/analytics">
-            <span
-              className={
-                currentPath.startsWith("/analytics") ? "font-bold" : ""
-              }
-            >
-              Analytics
-            </span>
-          </Link>
-        )}
+        {userId &&
+          navLinks.map(({ name, href }) => (
+            <Link href={href} key={name}>
+              <span className={currentPath.startsWith(href) ? "font-bold" : ""}>
+                {name}
+              </span>
+            </Link>
+          ))}
         <ClerkLoading>
           <Spinner />
         </ClerkLoading>
@@ -106,50 +83,18 @@ const Navbar = () => {
                 <SignedOut>
                   <SignInButton />
                 </SignedOut>
-                {userId && (
-                  <Link href="/decks" onClick={() => setOpen(false)}>
-                    <span
-                      className={
-                        currentPath.startsWith("/decks") ? "font-bold" : ""
-                      }
-                    >
-                      Decks
-                    </span>
-                  </Link>
-                )}
-                {userId && (
-                  <Link href="/create" onClick={() => setOpen(false)}>
-                    <span
-                      className={
-                        currentPath.startsWith("/create") ? "font-bold" : ""
-                      }
-                    >
-                      Create
-                    </span>
-                  </Link>
-                )}
-                {userId && (
-                  <Link href="/learn" onClick={() => setOpen(false)}>
-                    <span
-                      className={
-                        currentPath.startsWith("/learn") ? "font-bold" : ""
-                      }
-                    >
-                      Learn
-                    </span>
-                  </Link>
-                )}
-                {userId && (
-                  <Link href="/analytics" onClick={() => setOpen(false)}>
-                    <span
-                      className={
-                        currentPath.startsWith("/analytics") ? "font-bold" : ""
-                      }
-                    >
-                      Analytics
-                    </span>
-                  </Link>
-                )}
+                {userId &&
+                  navLinks.map(({ name, href }) => (
+                    <Link href={href} key={name} onClick={() => setOpen(false)}>
+                      <span
+                        className={
+                          currentPath.startsWith(href) ? "font-bold" : ""
+                        }
+                      >
+                        {name}
+                      </span>
+                    </Link>
+                  ))}
                 {userId && (
                   <SignedIn>
                     <div className="flex flex-col gap-2">
