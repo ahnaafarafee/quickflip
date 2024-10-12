@@ -1,10 +1,9 @@
 "use client";
 
+import BackButton from "@/app/components/BackButton";
 import SingleDeckLoadingSkeleton from "@/app/components/SingleDeckLoadingSkeleton";
 import { Deck } from "@prisma/client";
 import axios, { AxiosError } from "axios";
-import { ChevronLeft, Router } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface Props {
@@ -37,7 +36,6 @@ const cards = [
 ];
 
 const SingleDeckPage = ({ params: { id } }: Props) => {
-  const router = useRouter();
   const [deck, setDeck] = useState<Deck>();
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -71,9 +69,7 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
       <div className="min-h-screen dark:bg-gray-950 dark:text-gray-100 p-8">
         {error && <div className="text-red-500">{error}</div>}
         <div className="max-w-3xl mx-auto dark:bg-gray-900 p-6 rounded-lg shadow-lg">
-          <button onClick={() => router.back()} className="mb-4">
-            <ChevronLeft />
-          </button>
+          <BackButton />
           <h2 className="text-2xl font-semibold mb-4">{deck.name}</h2>
           <p className="light:text-gray-600 mb-2">
             <strong>Tags:</strong> {deck.tags || "None"}
