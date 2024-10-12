@@ -4,7 +4,7 @@ import { ThemeProvider } from "next-themes";
 
 import { ClerkProvider } from "@clerk/nextjs";
 import { Theme } from "@radix-ui/themes";
-import Navbar from "./components/Navbar/Navbar";
+import Navbar from "./components/Navbar";
 import { poppins } from "./fonts";
 import "./globals.css";
 
