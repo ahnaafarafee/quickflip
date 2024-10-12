@@ -4,6 +4,8 @@ import BackButton from "@/app/components/BackButton";
 import SingleDeckLoadingSkeleton from "@/app/components/SingleDeckLoadingSkeleton";
 import { Deck } from "@prisma/client";
 import axios, { AxiosError } from "axios";
+import { Ban } from "lucide-react";
+import { notFound } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface Props {
@@ -47,8 +49,9 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
         const response = await axios.get(`/api/decks/${id}`);
         setDeck(response.data);
       } catch (error) {
+        console.log(error);
         if (error instanceof AxiosError) {
-          setError(error.response?.data.message);
+          setError(error.response?.data.message || "Error Fetching Deck Info!");
         } else {
           setError("Error Fetching Deck Info!");
         }
@@ -58,56 +61,53 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
     };
 
     fetchDeck();
-  }, []);
+  }, [id]);
 
   if (isLoading) {
     return <SingleDeckLoadingSkeleton />;
   }
 
-  if (deck) {
-    return (
-      <div className="min-h-screen dark:bg-gray-950 dark:text-gray-100 p-8">
-        {error && <div className="text-red-500">{error}</div>}
-        <div className="max-w-3xl mx-auto dark:bg-gray-900 p-6 rounded-lg shadow-lg">
-          <BackButton />
-          <h2 className="text-2xl font-semibold mb-4">{deck.name}</h2>
-          <p className="light:text-gray-600 mb-2">
-            <strong>Tags:</strong> {deck.tags || "None"}
-          </p>
-          <p className="light:text-gray-600 mb-2">
-            <strong>Created At:</strong>{" "}
-            {new Date(deck.createdAt).toDateString()}
-          </p>
-          <p className="light:text-gray-600 mb-2">
-            <strong>Updated At:</strong>{" "}
-            {new Date(deck.updatedAt).toDateString()}
-          </p>
-          <p className="light:text-gray-600 mb-2">
-            <strong>Last Studied:</strong>{" "}
-            {new Date(deck.updatedAt).toDateString()}
-          </p>
-          <button className="btn-default mt-4 mb-4">Study Now</button>
-          <p>Complete Deck:</p>
-          {cards.map((card) => (
-            <div
-              key={card.id}
-              className="collapse collapse-arrow bg-base-200 mt-2"
-            >
-              <input type="radio" name="my-accordion-2" />
-              <div className="collapse-title text-xl font-medium">
-                {card.front}
-              </div>
-              <div className="collapse-content">
-                <p>{card.back}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
+  if (error) return notFound();
 
-  return null; // Return nothing if not loading and no deck
+  return (
+    <div className="min-h-screen dark:bg-gray-950 dark:text-gray-100 p-8">
+      <div className="max-w-3xl mx-auto dark:bg-gray-900 p-6 rounded-lg shadow-lg">
+        <BackButton />
+        <h2 className="text-2xl font-semibold mb-4">{deck?.name}</h2>
+        <p className="light:text-gray-600 mb-2">
+          <strong>Tags:</strong> {deck?.tags || "None"}
+        </p>
+        <p className="light:text-gray-600 mb-2">
+          <strong>Created At:</strong>{" "}
+          {deck?.createdAt ? new Date(deck.createdAt).toDateString() : "N/A"}
+        </p>
+        <p className="light:text-gray-600 mb-2">
+          <strong>Updated At:</strong>{" "}
+          {deck?.updatedAt ? new Date(deck.updatedAt).toDateString() : "N/A"}
+        </p>
+        <p className="light:text-gray-600 mb-2">
+          <strong>Last Studied:</strong>{" "}
+          {deck?.updatedAt ? new Date(deck.updatedAt).toDateString() : "N/A"}
+        </p>
+        <button className="btn-default mt-4 mb-4">Study Now</button>
+        <p>Complete Deck:</p>
+        {cards.map((card) => (
+          <div
+            key={card.id}
+            className="collapse collapse-arrow bg-base-200 mt-2"
+          >
+            <input type="radio" name="my-accordion-2" />
+            <div className="collapse-title text-xl font-medium">
+              {card.front}
+            </div>
+            <div className="collapse-content">
+              <p>{card.back}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 };
 
 export default SingleDeckPage;
