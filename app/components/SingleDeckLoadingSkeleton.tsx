@@ -2,7 +2,7 @@ import { Container, Flex, Skeleton, Text } from "@radix-ui/themes";
 
 const SingleDeckLoadingSkeleton = () => {
   return (
-    <Container size="2">
+    <Container size="2" className="p-4">
       <Flex direction="column" gap="3">
         <Text>
           <Skeleton>
