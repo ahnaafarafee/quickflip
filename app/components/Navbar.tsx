@@ -33,7 +33,7 @@ const Navbar = () => {
     <header className="px-4 lg:px-6 h-16 flex items-center backdrop-blur-md bg-white/30 dark:bg-gray-950 w-full !z-50">
       {/* Logo */}
       <Link className="flex items-center justify-center" href="/">
-        <span className="text-xl font-bold text-gray-900 dark:text-white">
+        <span className="text-xl font-bold text-gray-900 dark:text-white hover:animate-bounce-hover">
           QuickFlip
         </span>
       </Link>

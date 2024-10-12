@@ -1,32 +1,87 @@
 "use client";
 
-import { useState } from "react";
+import { cardFormSchema } from "@/schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Deck } from "@prisma/client";
+import { Spinner } from "@radix-ui/themes";
+import axios from "axios";
+import { SquarePen } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
 const CreateCardPage = () => {
-  const [front, setFront] = useState("");
-  const [back, setBack] = useState("");
-  const [tag, setTag] = useState("");
-  const [card, setCard] = useState("");
+  const [decks, setDecks] = useState<Deck[]>([]);
+  const [isSubmitting, setSubmitting] = useState(false);
 
-  const handleSubmit = async (e: any) => {
-    e.preventDefault();
-    // Handle form submission, e.g., sending the data to an API
-    const cardData = { front, back, tag, card };
-    console.log(cardData); // Replace with actual API call
-    // Reset form fields after submission
-    setFront("");
-    setBack("");
-    setTag("");
-    setCard("");
+  useEffect(() => {
+    const fetchDecks = async () => {
+      try {
+        const response = await axios.get("/api/decks");
+        setDecks(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchDecks();
+  }, []);
+
+  const form = useForm<z.infer<typeof cardFormSchema>>({
+    resolver: zodResolver(cardFormSchema),
+    defaultValues: {
+      front: "",
+      back: "",
+      tag: "",
+      deckId: "",
+    },
+  });
+
+  const onSubmit = async (values: z.infer<typeof cardFormSchema>) => {
+    try {
+      setSubmitting(true);
+      await axios
+        .post("/api/cards", values)
+        .then(() => form.reset())
+        .finally(() => setSubmitting(false));
+    } catch (error) {
+      console.log(error);
+      setSubmitting(false);
+    }
   };
 
   return (
     <div className="min-h-screen dark:bg-gray-950 dark:text-gray-100 p-8">
-      <h1 className="text-4xl font-bold mb-8 text-center">Create a New Card</h1>
+      <div className="text-3xl mb-8 flex items-center justify-center gap-2">
+        <SquarePen /> Create a New Card
+      </div>
       <form
-        onSubmit={handleSubmit}
+        onSubmit={form.handleSubmit(onSubmit)}
         className="max-w-md mx-auto dark:bg-gray-900 p-6 rounded-lg shadow-lg space-y-6"
       >
+        <div>
+          <label
+            htmlFor="deckId"
+            className="block text-sm font-medium light:text-gray-700"
+          >
+            Deck
+          </label>
+          <select
+            id="deckId"
+            {...form.register("deckId")}
+            className="input-field"
+            required
+          >
+            <option value="" disabled>
+              Select a Deck
+            </option>
+            {decks.map((deck) => (
+              <option key={deck.id} value={deck.id}>
+                {deck.name}
+              </option>
+            ))}
+          </select>
+        </div>
         <div>
           <label
             htmlFor="front"
@@ -37,12 +92,13 @@ const CreateCardPage = () => {
           <input
             type="text"
             id="front"
-            value={front}
-            onChange={(e) => setFront(e.target.value)}
+            {...form.register("front")}
             className="input-field"
-            required
           />
         </div>
+        <span className="text-red-500">
+          {form.formState.errors.front?.message}
+        </span>
         <div>
           <label
             htmlFor="back"
@@ -53,12 +109,13 @@ const CreateCardPage = () => {
           <input
             type="text"
             id="back"
-            value={back}
-            onChange={(e) => setBack(e.target.value)}
+            {...form.register("back")}
             className="input-field"
-            required
           />
         </div>
+        <span className="text-red-500">
+          {form.formState.errors.back?.message}
+        </span>
         <div>
           <label
             htmlFor="tag"
@@ -69,35 +126,25 @@ const CreateCardPage = () => {
           <input
             type="text"
             id="tag"
-            value={tag}
-            onChange={(e) => setTag(e.target.value)}
+            {...form.register("tag")}
             className="input-field"
           />
         </div>
-        <div>
-          <label
-            htmlFor="card"
-            className="block text-sm font-medium light:text-gray-700"
-          >
-            Card
-          </label>
-          <select
-            id="card"
-            value={card}
-            onChange={(e) => setCard(e.target.value)}
-            className="input-field"
-            required
-          >
-            <option value="" disabled>
-              Select a card
-            </option>
-            <option value="Card 1">Card 1</option>
-            <option value="Card 2">Card 2</option>
-            <option value="Card 3">Card 3</option>
-          </select>
-        </div>
-        <button type="submit" className="btn-default w-full">
-          Submit
+        <span className="text-red-500">
+          {form.formState.errors.tag?.message}
+        </span>
+        <button
+          disabled={isSubmitting}
+          type="submit"
+          className="w-full btn-default"
+        >
+          {isSubmitting ? (
+            <div className="flex items-center justify-center">
+              <Spinner />
+            </div>
+          ) : (
+            "Create Card"
+          )}
         </button>
       </form>
     </div>
