@@ -12,13 +12,14 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { Cross2Icon, HamburgerMenuIcon } from "@radix-ui/react-icons";
 import { Spinner } from "@radix-ui/themes";
 import Link from "next/link";
+import { usePathname } from "next/navigation"; // Use usePathname
 import { useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 
 const Navbar = () => {
   const { signOut, openUserProfile } = useClerk();
   const { userId } = useAuth();
-
+  const currentPath = usePathname(); // Use usePathname
   const [open, setOpen] = useState(false);
 
   return (
@@ -29,13 +30,46 @@ const Navbar = () => {
           QuickFlip
         </span>
       </Link>
-
       {/* Desktop Navigation */}
       <nav className="ml-auto hidden md:flex justify-center items-center gap-4 sm:gap-6">
-        {userId && <Link href="/decks">Decks</Link>}
-        {userId && <Link href="/learn">Learn</Link>}
-        {userId && <Link href="/analytics">Analytics</Link>}
-
+        {userId && (
+          <Link href="/decks">
+            <span
+              className={currentPath.startsWith("/decks") ? "font-bold" : ""}
+            >
+              Decks
+            </span>
+          </Link>
+        )}
+        {userId && (
+          <Link href="/create">
+            <span
+              className={currentPath.startsWith("/create") ? "font-bold" : ""}
+            >
+              Create
+            </span>
+          </Link>
+        )}
+        {userId && (
+          <Link href="/learn">
+            <span
+              className={currentPath.startsWith("/learn") ? "font-bold" : ""}
+            >
+              Learn
+            </span>
+          </Link>
+        )}
+        {userId && (
+          <Link href="/analytics">
+            <span
+              className={
+                currentPath.startsWith("/analytics") ? "font-bold" : ""
+              }
+            >
+              Analytics
+            </span>
+          </Link>
+        )}
         <ClerkLoading>
           <Spinner />
         </ClerkLoading>
@@ -46,7 +80,6 @@ const Navbar = () => {
           <UserButton />
         </SignedIn>
       </nav>
-
       {/* Mobile Hamburger Button */}
       <div className="ml-auto md:hidden">
         <Dialog.Root open={open} onOpenChange={setOpen}>
@@ -55,7 +88,6 @@ const Navbar = () => {
               <HamburgerMenuIcon className="w-6 h-6" />
             </button>
           </Dialog.Trigger>
-
           <Dialog.Portal>
             <Dialog.Overlay className="fixed inset-0 bg-black/50 dark:bg-black/80 z-40" />
             <Dialog.Content
@@ -69,7 +101,6 @@ const Navbar = () => {
               >
                 <Cross2Icon className="w-6 h-6" />
               </button>
-
               {/* Mobile Navigation Links */}
               <nav className="flex flex-col mt-8 space-y-4">
                 <SignedOut>
@@ -77,20 +108,48 @@ const Navbar = () => {
                 </SignedOut>
                 {userId && (
                   <Link href="/decks" onClick={() => setOpen(false)}>
-                    Decks
+                    <span
+                      className={
+                        currentPath.startsWith("/decks") ? "font-bold" : ""
+                      }
+                    >
+                      Decks
+                    </span>
+                  </Link>
+                )}
+                {userId && (
+                  <Link href="/create" onClick={() => setOpen(false)}>
+                    <span
+                      className={
+                        currentPath.startsWith("/create") ? "font-bold" : ""
+                      }
+                    >
+                      Create
+                    </span>
                   </Link>
                 )}
                 {userId && (
                   <Link href="/learn" onClick={() => setOpen(false)}>
-                    Learn
+                    <span
+                      className={
+                        currentPath.startsWith("/learn") ? "font-bold" : ""
+                      }
+                    >
+                      Learn
+                    </span>
                   </Link>
                 )}
                 {userId && (
                   <Link href="/analytics" onClick={() => setOpen(false)}>
-                    Analytics
+                    <span
+                      className={
+                        currentPath.startsWith("/analytics") ? "font-bold" : ""
+                      }
+                    >
+                      Analytics
+                    </span>
                   </Link>
                 )}
-
                 {userId && (
                   <SignedIn>
                     <div className="flex flex-col gap-2">

@@ -49,7 +49,6 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
         const response = await axios.get(`/api/decks/${id}`);
         setDeck(response.data);
       } catch (error) {
-        console.log(error);
         if (error instanceof AxiosError) {
           setError(error.response?.data.message || "Error Fetching Deck Info!");
         } else {
