@@ -3,10 +3,11 @@
 import BackButton from "@/app/components/BackButton";
 import SingleDeckLoadingSkeleton from "@/app/components/SingleDeckLoadingSkeleton";
 import { Card, Deck } from "@prisma/client";
+import { Spinner } from "@radix-ui/themes";
 import axios, { AxiosError } from "axios";
 import { Ban, SquarePen, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface Props {
@@ -18,6 +19,8 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
   const [cards, setCards] = useState<Card[]>([]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setSubmitting] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchDeck = async () => {
@@ -56,8 +59,6 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
 
   if (error) return notFound();
 
-  console.log(cards);
-
   return (
     <div className="min-h-screen dark:bg-gray-950 dark:text-gray-100 p-8">
       <div className="max-w-3xl mx-auto dark:bg-gray-900 p-6 rounded-lg shadow-lg">
@@ -65,7 +66,9 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
         <div className="flex items-center gap-2 mb-2">
           <h2 className="text-2xl font-semibold">{deck?.name}</h2>
           <SquarePen className="h-5 w-5 text-info cursor-pointer" />
-          <Trash2 className="h-5 w-5 text-error cursor-pointer" />
+          <label htmlFor="my_modal_6">
+            <Trash2 className="h-5 w-5 text-error cursor-pointer" />
+          </label>
         </div>
         <p className="light:text-gray-600 mb-2">
           <strong>Tags:</strong> {deck?.tags || "None"}
@@ -107,6 +110,46 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
             </div>
           ))
         )}
+      </div>
+      <div>
+        <input type="checkbox" id="my_modal_6" className="modal-toggle" />
+        <div className="modal" role="dialog">
+          <div className="modal-box">
+            <h3 className="text-lg font-bold text-error">
+              Do you want to permanently delete this Deck?
+            </h3>
+            <p className="py-4">This action can not be undone!</p>
+            <div className="modal-action">
+              <label htmlFor="my_modal_6" className="btn">
+                Close
+              </label>
+              <button
+                disabled={isSubmitting}
+                className="btn btn-error"
+                onClick={async () => {
+                  try {
+                    setSubmitting(true);
+                    await axios
+                      .delete(`/api/decks/${id}`)
+                      .finally(() => router.push("/decks"));
+                  } catch (error) {
+                    console.log(error);
+                  } finally {
+                    setSubmitting(false);
+                  }
+                }}
+              >
+                {isSubmitting ? (
+                  <div className="flex items-center justify-center">
+                    <Spinner />
+                  </div>
+                ) : (
+                  "Delete"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
