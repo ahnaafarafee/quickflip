@@ -126,7 +126,9 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
           <strong>Last Studied:</strong>{" "}
           {deck?.updatedAt ? new Date(deck.updatedAt).toDateString() : "N/A"}
         </p>
-        <button className="btn-default mt-4 mb-4">Study Now</button>
+        <button className="btn-default mt-4 mb-4">
+          <Link href={`/decks/learn/${id}`}>Study Now</Link>
+        </button>
         <p>Complete Deck:</p>
         {cards.length <= 0 ? (
           <span>

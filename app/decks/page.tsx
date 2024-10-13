@@ -90,7 +90,9 @@ export default function CustomDeckPage() {
                   <span className="text-sm text-gray-500">
                     {deck._count.cards} cards
                   </span>
-                  <button className="btn-default">Study</button>
+                  <button className="btn-default">
+                    <Link href={`/decks/learn/${deck.id}`}>Study</Link>
+                  </button>
                 </div>
               </div>
             </Link>
