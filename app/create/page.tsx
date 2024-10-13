@@ -4,15 +4,17 @@ import { cardFormSchema } from "@/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Deck } from "@prisma/client";
 import { Spinner } from "@radix-ui/themes";
-import axios from "axios";
-import { SquarePen } from "lucide-react";
+import axios, { AxiosError } from "axios";
+import { Ban, SquarePen } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import BackButton from "../components/BackButton";
 
 const CreateCardPage = () => {
   const [decks, setDecks] = useState<Deck[]>([]);
   const [isSubmitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchDecks = async () => {
@@ -45,8 +47,12 @@ const CreateCardPage = () => {
         .then(() => form.reset())
         .finally(() => setSubmitting(false));
     } catch (error) {
-      console.log(error);
       setSubmitting(false);
+      if (error instanceof AxiosError) {
+        setError(error.response?.data.message);
+      } else {
+        setError("Something went wrong!");
+      }
     }
   };
 
@@ -55,10 +61,13 @@ const CreateCardPage = () => {
       <div className="text-3xl mb-8 flex items-center justify-center gap-2">
         <SquarePen /> Create a New Card
       </div>
+
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className="max-w-md mx-auto dark:bg-gray-900 p-6 rounded-lg shadow-lg space-y-6"
       >
+        <BackButton />
+
         <div>
           <label
             htmlFor="deckId"
@@ -146,6 +155,11 @@ const CreateCardPage = () => {
             "Create Card"
           )}
         </button>
+        {error && (
+          <div className="bg-red-500/50 p-2 text-sm flex items-center gap-2 rounded-lg">
+            <Ban /> {error}
+          </div>
+        )}
       </form>
     </div>
   );
