@@ -2,13 +2,17 @@
 
 import BackButton from "@/app/components/BackButton";
 import SingleDeckLoadingSkeleton from "@/app/components/SingleDeckLoadingSkeleton";
+import { deckFormSchema } from "@/schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, Deck } from "@prisma/client";
 import { Spinner } from "@radix-ui/themes";
 import axios, { AxiosError } from "axios";
-import { Ban, SquarePen, Trash2 } from "lucide-react";
+import { Ban, SquarePen, Trash2, X } from "lucide-react";
 import Link from "next/link";
-import { notFound, redirect, useRouter } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
 interface Props {
   params: { id: string };
@@ -18,9 +22,35 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
   const [deck, setDeck] = useState<Deck>();
   const [cards, setCards] = useState<Card[]>([]);
   const [error, setError] = useState("");
+  const [formError, serFormError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setSubmitting] = useState(false);
   const router = useRouter();
+
+  const form = useForm<z.infer<typeof deckFormSchema>>({
+    resolver: zodResolver(deckFormSchema),
+    defaultValues: {
+      name: "",
+      tags: "",
+    },
+  });
+
+  const onSubmit = async (values: z.infer<typeof deckFormSchema>) => {
+    try {
+      setSubmitting(true);
+      await axios
+        .patch(`/api/decks/${id}`, values)
+        .then(() => setSubmitting(false));
+      location.reload();
+    } catch (error) {
+      setSubmitting(false);
+      if (error instanceof AxiosError) {
+        serFormError(error.response?.data.message);
+      } else {
+        serFormError("Something went wrong!");
+      }
+    }
+  };
 
   useEffect(() => {
     const fetchDeck = async () => {
@@ -28,6 +58,10 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
       try {
         const response = await axios.get(`/api/decks/${id}`);
         setDeck(response.data);
+        form.reset({
+          name: response.data.name,
+          tags: response.data.tags,
+        });
       } catch (error) {
         if (error instanceof AxiosError) {
           setError(error.response?.data.message || "Error Fetching Deck Info!");
@@ -51,7 +85,7 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
     };
 
     fetchCards();
-  }, [id]);
+  }, [id, form]);
 
   if (isLoading) {
     return <SingleDeckLoadingSkeleton />;
@@ -65,8 +99,10 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
         <BackButton />
         <div className="flex items-center gap-2 mb-2">
           <h2 className="text-2xl font-semibold">{deck?.name}</h2>
-          <SquarePen className="h-5 w-5 text-info cursor-pointer" />
-          <label htmlFor="my_modal_6">
+          <label htmlFor="modal_edit">
+            <SquarePen className="h-5 w-5 text-info cursor-pointer" />
+          </label>
+          <label htmlFor="modal_delete">
             <Trash2 className="h-5 w-5 text-error cursor-pointer" />
           </label>
         </div>
@@ -112,7 +148,7 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
         )}
       </div>
       <div>
-        <input type="checkbox" id="my_modal_6" className="modal-toggle" />
+        <input type="checkbox" id="modal_delete" className="modal-toggle" />
         <div className="modal" role="dialog">
           <div className="modal-box">
             <h3 className="text-lg font-bold text-error">
@@ -120,7 +156,7 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
             </h3>
             <p className="py-4">This action can not be undone!</p>
             <div className="modal-action">
-              <label htmlFor="my_modal_6" className="btn">
+              <label htmlFor="modal_delete" className="btn">
                 Close
               </label>
               <button
@@ -147,6 +183,85 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
                   "Delete"
                 )}
               </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <input type="checkbox" id="modal_edit" className="modal-toggle" />
+        <div className="modal" role="dialog">
+          <div className="modal-box">
+            <div className="text-2xl mb-8 flex items-center justify-center gap-2">
+              <SquarePen /> Update Deck
+            </div>
+            {deck && (
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6 p-2 !pb-0"
+              >
+                <div className="space-y-2">
+                  <label
+                    htmlFor="deckName"
+                    className="block text-sm font-medium dark:text-gray-300"
+                  >
+                    Deck Name
+                  </label>
+                  <input
+                    id="deckName"
+                    type="text"
+                    defaultValue={deck.name}
+                    placeholder={deck.name}
+                    {...form.register("name")}
+                    className="input-field"
+                  />
+                </div>
+                <span className="text-red-500">
+                  {form.formState.errors.name?.message}
+                </span>
+                <div className="space-y-2">
+                  <label
+                    htmlFor="deckTag"
+                    className="block text-sm font-medium dark:text-gray-300"
+                  >
+                    Deck Tag
+                  </label>
+                  <input
+                    id="deckTag"
+                    type="text"
+                    {...form.register("tags")}
+                    className="input-field"
+                  />
+                </div>
+                <span className="text-red-500">
+                  {form.formState.errors.tags?.message}
+                </span>
+                <button
+                  disabled={isSubmitting}
+                  type="submit"
+                  className="w-full btn-default"
+                >
+                  {isSubmitting ? (
+                    <div className="flex items-center justify-center">
+                      <Spinner />
+                    </div>
+                  ) : (
+                    "Update Deck"
+                  )}
+                </button>
+                {formError && (
+                  <div className="bg-red-500/50 p-2 text-sm flex items-center gap-2 rounded-lg">
+                    <Ban /> {formError}
+                  </div>
+                )}
+              </form>
+            )}
+            <div className="modal-action">
+              <label
+                className="absolute right-2 top-2 cursor-pointer p-2"
+                htmlFor="modal_edit"
+              >
+                <X className="w-6 h-6 transition-transform duration-500 hover:rotate-90" />
+              </label>
             </div>
           </div>
         </div>
