@@ -12,6 +12,7 @@ import Link from "next/link";
 import { notFound, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+
 import * as z from "zod";
 
 interface Props {
@@ -25,6 +26,8 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
   const [formError, serFormError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setSubmitting] = useState(false);
+  const [isFormSubmitted, setIsFormSubmitted] = useState(false);
+
   const router = useRouter();
 
   const form = useForm<z.infer<typeof deckFormSchema>>({
@@ -41,7 +44,8 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
       await axios
         .patch(`/api/decks/${id}`, values)
         .then(() => setSubmitting(false));
-      location.reload();
+      setIsFormSubmitted(true);
+      // location.reload();
     } catch (error) {
       setSubmitting(false);
       if (error instanceof AxiosError) {
@@ -62,6 +66,7 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
           name: response.data.name,
           tags: response.data.tags,
         });
+        setIsFormSubmitted(false); // Reset form submission state
       } catch (error) {
         if (error instanceof AxiosError) {
           setError(error.response?.data.message || "Error Fetching Deck Info!");
@@ -85,7 +90,7 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
     };
 
     fetchCards();
-  }, [id, form]);
+  }, [id, isFormSubmitted]);
 
   if (isLoading) {
     return <SingleDeckLoadingSkeleton />;
