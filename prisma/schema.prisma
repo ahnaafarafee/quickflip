@@ -38,12 +38,15 @@ model Deck {
 }
 
 model Card {
-  id        String   @id @default(cuid())
-  front     String
-  back      String
-  tag       String?
-  deck      Deck     @relation(fields: [deckId], references: [id], onDelete: Cascade)
-  deckId    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(cuid())
+  front      String
+  back       String
+  tag        String?
+  interval   Int      @default(1)
+  easeFactor Int      @default(1)
+  nextReview DateTime @default(now())
+  deck       Deck     @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  deckId     String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
