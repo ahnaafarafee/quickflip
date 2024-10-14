@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { BookOpen, Info, RotateCw } from "lucide-react";
 import BackButton from "@/app/components/BackButton";
-import Link from "next/link";
+import { Card, Deck } from "@prisma/client";
 import axios from "axios";
-import { Card } from "@prisma/client";
+import { BookOpen, Info, RotateCw } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 interface Props {
   params: { id: string };
@@ -13,6 +13,7 @@ interface Props {
 
 export default function LearningPage({ params: { id } }: Props) {
   const [cards, setCards] = useState<Card[]>([]);
+  const [deck, setDeck] = useState<Deck>();
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [animateKey, setAnimateKey] = useState(0);
@@ -27,6 +28,16 @@ export default function LearningPage({ params: { id } }: Props) {
       }
     };
     fetchCards();
+
+    const fetchDeck = async () => {
+      try {
+        const response = await axios.get(`/api/decks/${id}`);
+        setDeck(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchDeck();
   }, [id]);
 
   const handleFlip = () => setIsFlipped(!isFlipped);
@@ -43,7 +54,10 @@ export default function LearningPage({ params: { id } }: Props) {
   return (
     <div className="min-h-screen dark:bg-gray-950 flex flex-col items-center justify-center px-4 overflow-hidden">
       <h1 className="text-2xl mb-4 dark:text-white flex justify-center items-center gap-2">
-        <BookOpen /> Learning Deck: <span className="font-bold">Vocabs</span>
+        <BookOpen /> Learning:
+        <Link href={`/decks/${id}`} className="font-semibold hover:btn-link">
+          {deck?.name}
+        </Link>
       </h1>
       {cards.length === 0 ? (
         <>
@@ -89,7 +103,7 @@ export default function LearningPage({ params: { id } }: Props) {
                 <div className="w-full h-full bg-white dark:bg-gray-900 bg-opacity-20 backdrop-filter backdrop-blur-lg rounded-2xl shadow-xl flex items-start justify-center p-6 overflow-y-auto">
                   <p
                     key={animateKey}
-                    className="text-2xl font-semibold text-center dark:text-white animate-fade-in"
+                    className="text-2xl font-semibold text-pretty  dark:text-white animate-fade-in"
                   >
                     {currentCard?.back}
                   </p>
