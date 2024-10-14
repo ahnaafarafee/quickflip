@@ -5,16 +5,16 @@ import { BookOpen, RotateCw } from "lucide-react";
 import BackButton from "@/app/components/BackButton";
 
 const flashcards = [
-  { id: 1, question: "What is the capital of France?", answer: "Paris" },
+  { id: 1, front: "What is the capital of France?", back: "Paris" },
   {
     id: 2,
-    question: "What is the largest planet in our solar system?",
-    answer: "Jupiter",
+    front: "What is the largest planet in our solar system?",
+    back: "Jupiter",
   },
   {
     id: 3,
-    question: "Who painted the Mona Lisa?",
-    answer: "Leonardo da Vinci",
+    front: "Who painted the Mona Lisa?",
+    back: "Leonardo da Vinci",
   },
 ];
 
@@ -35,13 +35,13 @@ export default function LearningPage() {
 
   return (
     <div className="min-h-screen dark:bg-gray-950 flex flex-col items-center justify-center">
-      <div className="absolute top-4 left-4">
-        <BackButton />
-      </div>
       <h1 className="text-2xl mb-4 dark:text-white flex justify-center items-center gap-2">
         <BookOpen /> Learning Deck: <span className="font-bold">Vocabs</span>
       </h1>
       <div className="w-full max-w-md h-80 mb-4 [perspective:1000px]">
+        <div className="ml-2 md:!ml-0">
+          <BackButton />
+        </div>
         <div
           className={`relative cursor-pointer w-full h-full transition-transform duration-700 [transform-style:preserve-3d] ${
             isFlipped ? "[transform:rotateY(180deg)]" : ""
@@ -54,7 +54,7 @@ export default function LearningPage() {
                 key={animateKey}
                 className="text-2xl font-semibold text-center dark:text-white animate-fade-in"
               >
-                {currentCard.question}
+                {currentCard.front}
               </p>
             </div>
           </div>
@@ -64,7 +64,7 @@ export default function LearningPage() {
                 key={animateKey}
                 className="text-2xl font-semibold text-center dark:text-white animate-fade-in"
               >
-                {currentCard.answer}
+                {currentCard.back}
               </p>
             </div>
           </div>
@@ -76,7 +76,7 @@ export default function LearningPage() {
           className="flex items-center px-4 py-2 bg-white dark:bg-gray-900 bg-opacity-20 dark:text-white rounded-full hover:bg-opacity-30 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
         >
           <RotateCw className="mr-2 h-4 w-4" />
-          {isFlipped ? "Hide Answer" : "Show Answer"}
+          {isFlipped ? "Hide answer" : "Show answer"}
         </button>
       </div>
       {isFlipped && (
