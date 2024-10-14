@@ -21,7 +21,7 @@ export default function LearningPage({ params: { id } }: Props) {
   useEffect(() => {
     const fetchCards = async () => {
       try {
-        const response = await axios.get(`/api/cards/${id}`);
+        const response = await axios.get(`/api/cards/${id}?nextReview=true`);
         setCards(response.data);
       } catch (error) {
         console.log(error);

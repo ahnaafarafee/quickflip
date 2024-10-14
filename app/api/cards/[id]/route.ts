@@ -29,6 +29,20 @@ export async function GET(
     );
   }
 
-  const cards = await prisma.card.findMany({ where: { deckId: params.id } });
+  const url = new URL(request.url);
+  const nextReview = url.searchParams.get("nextReview");
+
+  const cards = await prisma.card.findMany({
+    where: {
+      deckId: params.id,
+      ...(nextReview === "true" && {
+        nextReview: {
+          gte: new Date(new Date().setHours(0, 0, 0, 0)).toISOString(),
+          lt: new Date(new Date().setHours(24, 0, 0, 0)).toISOString(),
+        },
+      }),
+    },
+  });
+
   return NextResponse.json(cards, { status: 200 });
 }
