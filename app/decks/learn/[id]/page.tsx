@@ -30,7 +30,7 @@ export default function LearningPage() {
     setTimeout(() => {
       setCurrentCardIndex((prevIndex) => (prevIndex + 1) % flashcards.length);
       setAnimateKey((prevKey) => prevKey + 1); // Update the key to restart the animation
-    }, 85);
+    }, 200);
   };
 
   return (
