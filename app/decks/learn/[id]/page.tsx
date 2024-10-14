@@ -1,39 +1,57 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BookOpen, Info, RotateCw } from "lucide-react";
 import BackButton from "@/app/components/BackButton";
 import Link from "next/link";
+import axios from "axios";
+import { Card } from "@prisma/client";
 
-const flashcards = []; // Empty array for demonstration
+interface Props {
+  params: { id: string };
+}
 
-export default function LearningPage() {
+export default function LearningPage({ params: { id } }: Props) {
+  const [cards, setCards] = useState<Card[]>([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [animateKey, setAnimateKey] = useState(0);
-  const currentCard = flashcards[currentCardIndex];
+
+  useEffect(() => {
+    const fetchCards = async () => {
+      try {
+        const response = await axios.get(`/api/cards/${id}`);
+        setCards(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchCards();
+  }, [id]);
 
   const handleFlip = () => setIsFlipped(!isFlipped);
   const handleNext = () => {
     setIsFlipped(false);
     setTimeout(() => {
-      setCurrentCardIndex((prevIndex) => (prevIndex + 1) % flashcards.length);
+      setCurrentCardIndex((prevIndex) => (prevIndex + 1) % cards.length);
       setAnimateKey((prevKey) => prevKey + 1); // Update the key to restart the animation
     }, 200);
   };
 
+  const currentCard = cards[currentCardIndex];
+
   return (
-    <div className="min-h-screen dark:bg-gray-950 flex flex-col items-center justify-center">
+    <div className="min-h-screen dark:bg-gray-950 flex flex-col items-center justify-center px-4 overflow-hidden">
       <h1 className="text-2xl mb-4 dark:text-white flex justify-center items-center gap-2">
         <BookOpen /> Learning Deck: <span className="font-bold">Vocabs</span>
       </h1>
-      {flashcards.length === 0 ? (
+      {cards.length === 0 ? (
         <>
           <div
             className="alert w-full max-w-xl flex justify-center items-center"
             role="alert"
           >
-            <p className="sm:text-sm md:text-xl dark:text-white text-center flex justify-center items-center gap-2 ">
+            <p className="sm:text-sm md:text-xl dark:text-white text-center flex justify-center items-center gap-2">
               <Info className="text-info" /> No more cards to study today. Come
               back tomorrow!
             </p>
@@ -47,12 +65,12 @@ export default function LearningPage() {
         </>
       ) : (
         <>
-          <div className="w-full max-w-md h-80 mb-4 [perspective:1000px]">
+          <div className="w-full max-w-md h-auto mb-4 [perspective:1000px]">
             <div className="ml-2 md:!ml-0">
               <BackButton />
             </div>
             <div
-              className={`relative cursor-pointer w-full h-full transition-transform duration-700 [transform-style:preserve-3d] ${
+              className={`relative cursor-pointer w-full h-96 transition-transform duration-700 [transform-style:preserve-3d] ${
                 isFlipped ? "[transform:rotateY(180deg)]" : ""
               }`}
               onClick={handleFlip}
@@ -63,23 +81,23 @@ export default function LearningPage() {
                     key={animateKey}
                     className="text-2xl font-semibold text-center dark:text-white animate-fade-in"
                   >
-                    {currentCard.front}
+                    {currentCard?.front}
                   </p>
                 </div>
               </div>
               <div className="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)]">
-                <div className="w-full h-full bg-white dark:bg-gray-900 bg-opacity-20 backdrop-filter backdrop-blur-lg rounded-2xl shadow-xl flex items-center justify-center p-6">
+                <div className="w-full h-full bg-white dark:bg-gray-900 bg-opacity-20 backdrop-filter backdrop-blur-lg rounded-2xl shadow-xl flex items-start justify-center p-6 overflow-y-auto">
                   <p
                     key={animateKey}
                     className="text-2xl font-semibold text-center dark:text-white animate-fade-in"
                   >
-                    {currentCard.back}
+                    {currentCard?.back}
                   </p>
                 </div>
               </div>
             </div>
           </div>
-          <div className="flex justify-center items-center w-full max-w-md mt-4">
+          <div className="flex justify-center items-center w-full max-w-sm mt-4">
             <button
               onClick={handleFlip}
               className="flex items-center px-4 py-4 mt-2 bg-white dark:bg-gray-900 bg-opacity-20 dark:text-white rounded-full hover:bg-opacity-30 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
@@ -105,7 +123,7 @@ export default function LearningPage() {
             </div>
           )}
           <p className="mt-4 text-sm dark:text-white">
-            Card {currentCardIndex + 1} of {flashcards.length}
+            Card {currentCardIndex + 1} of {cards.length}
           </p>
         </>
       )}
