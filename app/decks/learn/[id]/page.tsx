@@ -34,7 +34,7 @@ export default function LearningPage() {
   };
 
   return (
-    <div className="max-sm:min-h-screen dark:bg-gray-950 flex flex-col items-center justify-center">
+    <div className="min-h-screen dark:bg-gray-950 flex flex-col items-center justify-center">
       <div className="absolute top-4 left-4">
         <BackButton />
       </div>
