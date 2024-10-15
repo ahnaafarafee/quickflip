@@ -165,7 +165,7 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
                           new Date().getTime()) /
                           (1000 * 60 * 60 * 24)
                       );
-                      if (daysLeft === 0) return "today";
+                      if (daysLeft <= 0) return "today";
                       if (daysLeft === 1) return "1 day";
                       return `${daysLeft} days`;
                     })()}

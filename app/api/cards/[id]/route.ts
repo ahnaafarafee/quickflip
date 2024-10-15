@@ -37,8 +37,7 @@ export async function GET(
       deckId: params.id,
       ...(nextReview === "true" && {
         nextReview: {
-          gte: new Date(new Date().setHours(0, 0, 0, 0)).toISOString(),
-          lt: new Date(new Date().setHours(24, 0, 0, 0)).toISOString(),
+          lte: new Date().toISOString(), // Including today and past dates
         },
       }),
     },
