@@ -148,8 +148,29 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
                 {card.front}
               </div>
               <div className="collapse-content">
+                <div>
+                  {/* Display the number of days until the card's next review date. 
+                 - If the card is due today, display "today".
+                 - If the card is due in 1 day, display "1 day".
+                 - Otherwise, display the number of days remaining followed by "days".
+                 !!! used: immediately-invoked function expression (IIFE) 
+                */}
+                  Card due in:
+                  <span className="ml-1 mr-1 font-bold">
+                    {(() => {
+                      const daysLeft = Math.ceil(
+                        (new Date(card.nextReview).getTime() -
+                          new Date().getTime()) /
+                          (1000 * 60 * 60 * 24)
+                      );
+                      if (daysLeft === 0) return "today";
+                      if (daysLeft === 1) return "1 day";
+                      return `${daysLeft} days`;
+                    })()}
+                  </span>
+                </div>
+
                 <div className="flex gap-2 text-sm mb-4">
-                  <Info className="text-info h-5 w-5" />
                   Next Review:
                   <p className="font-bold">
                     {new Date(card.nextReview).toDateString()}
