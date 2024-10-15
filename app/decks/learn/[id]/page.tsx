@@ -18,17 +18,17 @@ export default function LearningPage({ params: { id } }: Props) {
   const [isFlipped, setIsFlipped] = useState(false);
   const [animateKey, setAnimateKey] = useState(0);
 
-  useEffect(() => {
-    const fetchCards = async () => {
-      try {
-        const response = await axios.get(`/api/cards/${id}?nextReview=true`); // only shows the cards that has nextReview date set to today
-        setCards(response.data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchCards();
+  const fetchCards = async () => {
+    try {
+      const response = await axios.get(`/api/cards/${id}?nextReview=true`);
+      setCards(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
+  useEffect(() => {
+    fetchCards();
     const fetchDeck = async () => {
       try {
         const response = await axios.get(`/api/decks/${id}`);
@@ -41,20 +41,25 @@ export default function LearningPage({ params: { id } }: Props) {
   }, [id]);
 
   const handleFlip = () => setIsFlipped(!isFlipped);
+
   const handleNext = async (easeFactor: number) => {
     try {
-      await axios.patch(`/api/cards/${currentCard.id}?deckId=${id}`, {
-        easeFactor,
-      });
+      await axios.patch(
+        `/api/cards/${cards[currentCardIndex].id}?deckId=${id}`,
+        { easeFactor }
+      );
+      // Remove the card that was just studied
+      setCards((prevCards) =>
+        prevCards.filter((_, index) => index !== currentCardIndex)
+      );
+      // Reset the index appropriately
+      setCurrentCardIndex((prevIndex) => (prevIndex === 0 ? 0 : prevIndex - 1));
+      fetchCards();
     } catch (error) {
       console.error(error);
     }
-
     setIsFlipped(false);
-    setTimeout(() => {
-      setCurrentCardIndex((prevIndex) => (prevIndex + 1) % cards.length);
-      setAnimateKey((prevKey) => prevKey + 1);
-    }, 200);
+    setAnimateKey((prevKey) => prevKey + 1);
   };
 
   const currentCard = cards[currentCardIndex];
@@ -62,7 +67,7 @@ export default function LearningPage({ params: { id } }: Props) {
   return (
     <div className="min-h-screen dark:bg-gray-950 flex flex-col items-center justify-center px-4 overflow-hidden">
       <h1 className="text-2xl mb-4 dark:text-white flex justify-center items-center gap-2">
-        <BookOpen /> Learning:
+        <BookOpen /> Learning:{" "}
         <Link href={`/decks/${id}`} className="font-semibold hover:btn-link">
           {deck?.name}
         </Link>
@@ -111,7 +116,7 @@ export default function LearningPage({ params: { id } }: Props) {
                 <div className="w-full h-full bg-white dark:bg-gray-900 bg-opacity-20 backdrop-filter backdrop-blur-lg rounded-2xl shadow-xl flex items-start justify-center p-6 overflow-y-auto">
                   <p
                     key={animateKey}
-                    className="text-2xl font-semibold text-pretty  dark:text-white animate-fade-in"
+                    className="text-2xl font-semibold text-pretty dark:text-white animate-fade-in"
                   >
                     {currentCard?.back}
                   </p>
@@ -129,7 +134,7 @@ export default function LearningPage({ params: { id } }: Props) {
             </button>
           </div>
           {isFlipped && (
-            <div className="flex space-x-2 mt-4">
+            <div className="flex space-x-2 mt-4 mb-4">
               <button className="btn-default" onClick={() => handleNext(1)}>
                 Again
               </button>
@@ -144,9 +149,6 @@ export default function LearningPage({ params: { id } }: Props) {
               </button>
             </div>
           )}
-          <p className="mt-4 text-sm dark:text-white">
-            Card {currentCardIndex + 1} of {cards.length}
-          </p>
         </>
       )}
     </div>
