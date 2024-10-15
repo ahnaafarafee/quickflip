@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, Deck } from "@prisma/client";
 import { Spinner } from "@radix-ui/themes";
 import axios, { AxiosError } from "axios";
-import { Ban, SquarePen, Trash2, X } from "lucide-react";
+import { Ban, Info, SquarePen, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import { notFound, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -148,6 +148,13 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
                 {card.front}
               </div>
               <div className="collapse-content">
+                <div className="flex gap-2 text-sm mb-4">
+                  <Info className="text-info h-5 w-5" />
+                  Next Review:
+                  <p className="font-bold">
+                    {new Date(card.nextReview).toDateString()}
+                  </p>
+                </div>
                 <p>{card.back}</p>
               </div>
             </div>

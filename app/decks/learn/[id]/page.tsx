@@ -21,7 +21,7 @@ export default function LearningPage({ params: { id } }: Props) {
   useEffect(() => {
     const fetchCards = async () => {
       try {
-        const response = await axios.get(`/api/cards/${id}?nextReview=true`);
+        const response = await axios.get(`/api/cards/${id}?nextReview=true`); // only shows the cards that has nextReview date set to today
         setCards(response.data);
       } catch (error) {
         console.log(error);
@@ -41,11 +41,19 @@ export default function LearningPage({ params: { id } }: Props) {
   }, [id]);
 
   const handleFlip = () => setIsFlipped(!isFlipped);
-  const handleNext = () => {
+  const handleNext = async (easeFactor: number) => {
+    try {
+      await axios.patch(`/api/cards/${currentCard.id}?deckId=${id}`, {
+        easeFactor,
+      });
+    } catch (error) {
+      console.error(error);
+    }
+
     setIsFlipped(false);
     setTimeout(() => {
       setCurrentCardIndex((prevIndex) => (prevIndex + 1) % cards.length);
-      setAnimateKey((prevKey) => prevKey + 1); // Update the key to restart the animation
+      setAnimateKey((prevKey) => prevKey + 1);
     }, 200);
   };
 
@@ -122,16 +130,16 @@ export default function LearningPage({ params: { id } }: Props) {
           </div>
           {isFlipped && (
             <div className="flex space-x-2 mt-4">
-              <button className="btn-default" onClick={handleNext}>
+              <button className="btn-default" onClick={() => handleNext(1)}>
                 Again
               </button>
-              <button className="btn-default" onClick={handleNext}>
+              <button className="btn-default" onClick={() => handleNext(2)}>
                 Hard
               </button>
-              <button className="btn-default" onClick={handleNext}>
+              <button className="btn-default" onClick={() => handleNext(3)}>
                 Easy
               </button>
-              <button className="btn-default" onClick={handleNext}>
+              <button className="btn-default" onClick={() => handleNext(4)}>
                 Very Easy
               </button>
             </div>
