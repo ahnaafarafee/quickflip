@@ -22,5 +22,5 @@ export const cardFormSchema = z.object({
     .min(3, { message: "Card's back must be at least 3 characters" })
     .max(2000, { message: "Card's back must be less than 2000 characters" }),
   tag: z.string({ message: "Tag must be string" }).optional(),
-  deckId: z.string(),
+  deckId: z.string().optional(),
 });

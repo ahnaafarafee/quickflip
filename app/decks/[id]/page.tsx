@@ -150,7 +150,10 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
               </div>
               <div className="collapse-content">
                 <div className="flex mb-2 gap-2">
-                  <SquarePen className="h-5 w-5 text-info cursor-pointer" />
+                  <SquarePen
+                    className="h-5 w-5 text-info cursor-pointer"
+                    onClick={() => router.push(`/edit/${card.id}?deckId=${id}`)}
+                  />
                   <button disabled={isSubmitting}>
                     {isSubmitting ? (
                       <Spinner />
