@@ -123,3 +123,44 @@ export async function PATCH(
     { status: 200 }
   );
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const { userId } = getAuth(request);
+
+  if (!userId)
+    return NextResponse.json(
+      { message: "You are not authorize to perform this action." },
+      { status: 400 }
+    );
+
+  const url = new URL(request.url);
+  const deckId = url.searchParams.get("deckId");
+
+  if (!deckId)
+    return NextResponse.json(
+      { message: "No deckId provided" },
+      { status: 400 }
+    );
+
+  const user = await clerkClient.users.getUser(userId);
+  const deck = await prisma.deck.findFirst({
+    where: {
+      id: deckId,
+      userId: user.publicMetadata.userId as string,
+    },
+  });
+
+  if (!deck) {
+    return NextResponse.json(
+      { message: "Deck with the provided ID doesn't exist." },
+      { status: 404 }
+    );
+  }
+
+  await prisma.card.delete({ where: { id: params.id, deckId } });
+
+  return NextResponse.json("card deleted successfully", { status: 200 });
+}

@@ -27,6 +27,7 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setSubmitting] = useState(false);
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
+  const [showToast, setShowToast] = useState(false);
 
   const router = useRouter();
 
@@ -56,6 +57,15 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
     }
   };
 
+  const fetchCards = async () => {
+    try {
+      const response = await axios.get(`/api/cards/${id}`);
+      setCards(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     const fetchDeck = async () => {
       setIsLoading(true);
@@ -79,15 +89,6 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
     };
 
     fetchDeck();
-
-    const fetchCards = async () => {
-      try {
-        const response = await axios.get(`/api/cards/${id}`);
-        setCards(response.data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
 
     fetchCards();
   }, [id, isFormSubmitted]);
@@ -148,6 +149,33 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
                 {card.front}
               </div>
               <div className="collapse-content">
+                <div className="flex mb-2 gap-2">
+                  <SquarePen className="h-5 w-5 text-info cursor-pointer" />
+                  <button disabled={isSubmitting}>
+                    {isSubmitting ? (
+                      <Spinner />
+                    ) : (
+                      <Trash2
+                        className="h-5 w-5 text-error cursor-pointer"
+                        onClick={async () => {
+                          try {
+                            setSubmitting(true);
+                            await axios
+                              .delete(`/api/cards/${card.id}?deckId=${id}`)
+                              .then(() => fetchCards());
+
+                            setShowToast(true);
+                            setTimeout(() => setShowToast(false), 3000); // Hide toast after 3 seconds
+                            setSubmitting(false);
+                          } catch (error) {
+                            setSubmitting(false);
+                            console.log(error);
+                          }
+                        }}
+                      />
+                    )}
+                  </button>
+                </div>
                 <div className="text-gray-400">Stats:</div>
 
                 <div>
@@ -216,6 +244,15 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
           ))
         )}
       </div>
+      {showToast && (
+        <div className="toast">
+          <div className="chat chat-end">
+            <div className="chat-bubble ml-6 bg-blue-600">
+              Card deleted Successfully!
+            </div>
+          </div>
+        </div>
+      )}
       <div>
         <input type="checkbox" id="modal_delete" className="modal-toggle" />
         <div className="modal" role="dialog">
@@ -256,6 +293,7 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
           </div>
         </div>
       </div>
+
       <div>
         <input type="checkbox" id="modal_edit" className="modal-toggle" />
         <div className="modal" role="dialog">

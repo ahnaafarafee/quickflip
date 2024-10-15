@@ -1,10 +1,19 @@
+import Link from "next/link";
 import React from "react";
 
 const AnalyticsPage = () => {
   return (
-    <div>
-      <h1>AnalyticsPage</h1>
-      <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Nam sed, veniam consequuntur, nobis qui adipisci non natus asperiores molestiae at eum earum commodi harum repellendus, quidem delectus modi voluptates perferendis?</p>
+    <div className="min-h-screen flex flex-col justify-center items-center gap-2">
+      <h1>This feature isn't available yet. Please check back later!</h1>
+      <Link href="/study" className="btn-link">
+        Study your cards
+      </Link>
+      <Link href="/decks" className="btn-link">
+        See your decks
+      </Link>
+      <Link href="/create" className="btn-link">
+        Create new decks
+      </Link>
     </div>
   );
 };
