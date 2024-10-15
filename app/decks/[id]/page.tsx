@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, Deck } from "@prisma/client";
 import { Spinner } from "@radix-ui/themes";
 import axios, { AxiosError } from "axios";
-import { Ban, Info, SquarePen, Trash2, X } from "lucide-react";
+import { Ban, BookmarkCheck, SquarePen, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import { notFound, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -129,7 +129,7 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
         <button className="btn-default mt-4 mb-4">
           <Link href={`/decks/learn/${id}`}>Study Now</Link>
         </button>
-        <p>Complete Deck:</p>
+        <p className="text-gray-400">Complete Deck:</p>
         {cards.length <= 0 ? (
           <span>
             No cards available.{" "}
@@ -177,6 +177,34 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
                   <p className="font-bold">
                     {new Date(card.nextReview).toDateString()}
                   </p>
+                </div>
+                <div>
+                  <div>
+                    {card.easeFactor === 1 && (
+                      <div className="badge badge-error">
+                        <BookmarkCheck className="h-3 w-3" />
+                        New
+                      </div>
+                    )}
+                    {card.easeFactor === 2 && (
+                      <div className="badge badge-warning">
+                        <BookmarkCheck className="h-3 w-3" />
+                        Familiar
+                      </div>
+                    )}
+                    {card.easeFactor === 3 && (
+                      <div className="badge badge-info">
+                        <BookmarkCheck className="h-3 w-3" />
+                        Learned
+                      </div>
+                    )}
+                    {card.easeFactor === 4 && (
+                      <div className="badge badge-success">
+                        <BookmarkCheck className="h-3 w-3" />
+                        Mastered
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div>
                   <div className="divider"></div>
