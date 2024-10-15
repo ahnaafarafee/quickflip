@@ -148,6 +148,8 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
                 {card.front}
               </div>
               <div className="collapse-content">
+                <div className="text-gray-400">Stats:</div>
+
                 <div>
                   {/* Display the number of days until the card's next review date. 
                  - If the card is due today, display "today".
@@ -176,7 +178,11 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
                     {new Date(card.nextReview).toDateString()}
                   </p>
                 </div>
-                <p>{card.back}</p>
+                <div>
+                  <div className="divider"></div>
+                  <p className="text-gray-400">Content:</p>
+                  <p> {card.back}</p>
+                </div>
               </div>
             </div>
           ))

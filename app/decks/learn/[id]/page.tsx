@@ -17,6 +17,7 @@ export default function LearningPage({ params: { id } }: Props) {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [animateKey, setAnimateKey] = useState(0);
+  const [isSubmitting, setSubmitting] = useState(false);
 
   const fetchCards = async () => {
     try {
@@ -44,10 +45,13 @@ export default function LearningPage({ params: { id } }: Props) {
 
   const handleNext = async (easeFactor: number) => {
     try {
-      await axios.patch(
-        `/api/cards/${cards[currentCardIndex].id}?deckId=${id}`,
-        { easeFactor }
-      );
+      setSubmitting(true);
+
+      await axios
+        .patch(`/api/cards/${cards[currentCardIndex].id}?deckId=${id}`, {
+          easeFactor,
+        })
+        .finally(() => setSubmitting(false));
       // Remove the card that was just studied
       setCards((prevCards) =>
         prevCards.filter((_, index) => index !== currentCardIndex)
@@ -56,6 +60,7 @@ export default function LearningPage({ params: { id } }: Props) {
       setCurrentCardIndex((prevIndex) => (prevIndex === 0 ? 0 : prevIndex - 1));
       fetchCards();
     } catch (error) {
+      setSubmitting(false);
       console.error(error);
     }
     setIsFlipped(false);
@@ -135,16 +140,32 @@ export default function LearningPage({ params: { id } }: Props) {
           </div>
           {isFlipped && (
             <div className="flex space-x-2 mt-4 mb-4">
-              <button className="btn-default" onClick={() => handleNext(1)}>
+              <button
+                className="btn-default"
+                disabled={isSubmitting}
+                onClick={() => handleNext(1)}
+              >
                 Again
               </button>
-              <button className="btn-default" onClick={() => handleNext(2)}>
+              <button
+                className="btn-default"
+                disabled={isSubmitting}
+                onClick={() => handleNext(2)}
+              >
                 Hard
               </button>
-              <button className="btn-default" onClick={() => handleNext(3)}>
+              <button
+                className="btn-default"
+                disabled={isSubmitting}
+                onClick={() => handleNext(3)}
+              >
                 Easy
               </button>
-              <button className="btn-default" onClick={() => handleNext(4)}>
+              <button
+                className="btn-default"
+                disabled={isSubmitting}
+                onClick={() => handleNext(4)}
+              >
                 Very Easy
               </button>
             </div>
