@@ -11,12 +11,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import DecksLoadingSkeleton from "../components/DecksLoadingSkeleton";
-
-interface DeckWithCount extends Deck {
-  _count: {
-    cards: number;
-  };
-}
+c
 
 export default function CustomDeckPage() {
   const [decks, setDecks] = useState<DeckWithCount[]>([]);

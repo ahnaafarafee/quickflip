@@ -17,6 +17,13 @@ export async function GET(request: NextRequest) {
   const decks = await prisma.deck.findMany({
     where: { userId: user.publicMetadata.userId as string },
     include: {
+      cards: {
+        where: {
+          nextReview: {
+            lte: new Date().toISOString(), // Including today and past dates
+          },
+        },
+      },
       _count: {
         select: { cards: true },
       },
