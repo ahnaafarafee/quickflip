@@ -1,3 +1,0 @@
--- AlterTable
-ALTER TABLE `card` MODIFY `easeFactor` INTEGER NOT NULL DEFAULT 1,
-    MODIFY `interval` INTEGER NOT NULL DEFAULT 1;

@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE `card` ADD COLUMN `tag` VARCHAR(191) NULL;

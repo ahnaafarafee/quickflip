@@ -1,7 +1,7 @@
 import { prisma } from "@/prisma";
 import { deckFormSchema } from "@/schema";
-import { NextRequest, NextResponse } from "next/server";
 import { clerkClient, getAuth } from "@clerk/nextjs/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   const { userId } = getAuth(request);
