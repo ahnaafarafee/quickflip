@@ -84,7 +84,10 @@ export default function CustomDeckPage() {
                 <h2 className="text-xl font-semibold mb-2">{deck.name}</h2>
                 <p className="text-sm text-gray-400 mb-4">{deck.tags}</p>
                 <p className="text-sm text-gray-400 mb-4">
-                  Last Studied: {new Date(deck.updatedAt).toDateString()}
+                  Last Studied:{" "}
+                  {deck?.lastStudied
+                    ? new Date(deck?.lastStudied).toDateString()
+                    : "N/A"}
                 </p>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-500">

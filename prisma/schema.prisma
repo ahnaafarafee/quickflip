@@ -25,14 +25,15 @@ model User {
 }
 
 model Deck {
-  id        String   @id @default(cuid())
-  name      String
-  tags      String?
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String
-  cards     Card[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  name        String
+  tags        String?
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  cards       Card[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  lastStudied DateTime? 
 
   @@index([tags])
 }

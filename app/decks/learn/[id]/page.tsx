@@ -1,6 +1,7 @@
 "use client";
 
 import BackButton from "@/app/components/BackButton";
+import { prisma } from "@/prisma";
 import { Card, Deck } from "@prisma/client";
 import axios from "axios";
 import { BookOpen, Info, RotateCw } from "lucide-react";
@@ -19,17 +20,29 @@ export default function LearningPage({ params: { id } }: Props) {
   const [animateKey, setAnimateKey] = useState(0);
   const [isSubmitting, setSubmitting] = useState(false);
 
+  const updateLastStudied = async () => {
+    try {
+      await axios.patch(`/api/decks/${id}`, {
+        lastStudied: new Date(Date.now()),
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const fetchCards = async () => {
     try {
       const response = await axios.get(`/api/cards/${id}?nextReview=true`);
       setCards(response.data);
+      if (response.data) {
+        updateLastStudied();
+      }
     } catch (error) {
       console.log(error);
     }
   };
 
   useEffect(() => {
-    fetchCards();
     const fetchDeck = async () => {
       try {
         const response = await axios.get(`/api/decks/${id}`);
@@ -39,6 +52,7 @@ export default function LearningPage({ params: { id } }: Props) {
       }
     };
     fetchDeck();
+    fetchCards();
   }, [id]);
 
   const handleFlip = () => setIsFlipped(!isFlipped);

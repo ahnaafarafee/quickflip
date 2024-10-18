@@ -118,8 +118,6 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
 
   if (error) return notFound();
 
-  console.log(easeFactorValues);
-
   return (
     <div className="min-h-screen dark:bg-gray-950 dark:text-gray-100 p-8">
       <div className="max-w-3xl mx-auto dark:bg-gray-900 p-6 rounded-lg shadow-lg">
@@ -138,18 +136,22 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
           <strong>Tags:</strong> {deck?.tags || "None"}
         </p>
         <p className="light:text-gray-600 mb-2">
-          <strong>Created At:</strong>
+          <strong>Created At: </strong>
           {deck?.createdAt ? new Date(deck.createdAt).toDateString() : "N/A"}
         </p>
         <p className="light:text-gray-600 mb-2">
-          <strong>Updated At:</strong>
+          <strong>Updated At: </strong>
           {deck?.updatedAt ? new Date(deck.updatedAt).toDateString() : "N/A"}
         </p>
         <p className="light:text-gray-600 mb-2">
-          <strong>Last Studied:</strong>
-          {deck?.updatedAt ? new Date(deck.updatedAt).toDateString() : "N/A"}
+          <strong>Last Studied: </strong>
+          {deck?.lastStudied ? new Date(deck?.lastStudied).toString() : "N/A"}
         </p>
-        <Chart data={easeFactorValues} />
+        {deck?.cards.length ? (
+          <Chart data={easeFactorValues} />
+        ) : (
+          "No Data Available"
+        )}
         <div className="flex flex-col md:flex-row gap-2 md:mt-4">
           <span className="flex md:justify-center items-center gap-1">
             <div className="h-3 w-3 bg-error"></div> New:

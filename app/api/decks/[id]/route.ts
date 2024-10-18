@@ -42,28 +42,39 @@ export async function PATCH(
   const user = await clerkClient().users.getUser(userId);
 
   const body = await request.json();
-  const validation = deckFormSchema.safeParse(body);
+  if (!body.lastStudied) {
+    const validation = deckFormSchema.safeParse(body);
 
-  if (!validation.success)
-    return NextResponse.json(validation.error.errors, { status: 400 });
+    if (!validation.success)
+      return NextResponse.json(validation.error.errors, { status: 400 });
 
-  const existingName = await prisma.deck.findFirst({
-    where: { name: body.name, userId: user.publicMetadata.userId as string },
-  });
+    const existingName = await prisma.deck.findFirst({
+      where: { name: body.name, userId: user.publicMetadata.userId as string },
+    });
 
-  if (existingName)
-    return NextResponse.json(
-      { message: "This name has already been used. Try using different name!" },
-      { status: 400 }
-    );
+    if (existingName)
+      return NextResponse.json(
+        {
+          message: "This name has already been used. Try using different name!",
+        },
+        { status: 400 }
+      );
 
-  await prisma.deck.update({
-    where: { id: params.id },
-    data: {
-      name: body.name,
-      tags: body.tags,
-    },
-  });
+    await prisma.deck.update({
+      where: { id: params.id },
+      data: {
+        name: body.name,
+        tags: body.tags,
+      },
+    });
+  } else if (body.lastStudied) {
+    await prisma.deck.update({
+      where: { id: params.id, userId: user.publicMetadata.userId as string },
+      data: {
+        lastStudied: body.lastStudied,
+      },
+    });
+  }
 
   return NextResponse.json(
     { message: "Deck updated successfully!" },
