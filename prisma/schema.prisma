@@ -1,14 +1,14 @@
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider     = "postgresql"
+  url          = env("DATABASE_URL")
+  directUrl    = env("DIRECT_URL")
+  relationMode = "prisma"
 }
-        
+
 model User {
   id        String  @id @default(cuid())
   clerkId   String  @unique
@@ -32,6 +32,7 @@ model Deck {
   lastStudied DateTime?
 
   @@index([tags])
+  @@index([userId]) // Added manual index for userId (foreign key)
 }
 
 model Card {
@@ -46,4 +47,6 @@ model Card {
   deckId     String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+
+  @@index([deckId]) // Added manual index for deckId (foreign key)
 }

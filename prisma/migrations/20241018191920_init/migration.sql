@@ -46,8 +46,8 @@ CREATE UNIQUE INDEX "User_clerkId_key" ON "User"("clerkId");
 -- CreateIndex
 CREATE INDEX "Deck_tags_idx" ON "Deck"("tags");
 
--- AddForeignKey
-ALTER TABLE "Deck" ADD CONSTRAINT "Deck_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+-- CreateIndex
+CREATE INDEX "Deck_userId_idx" ON "Deck"("userId");
 
--- AddForeignKey
-ALTER TABLE "Card" ADD CONSTRAINT "Card_deckId_fkey" FOREIGN KEY ("deckId") REFERENCES "Deck"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+-- CreateIndex
+CREATE INDEX "Card_deckId_idx" ON "Card"("deckId");
