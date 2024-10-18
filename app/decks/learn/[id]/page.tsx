@@ -1,11 +1,11 @@
 "use client";
 
 import BackButton from "@/app/components/BackButton";
-import { prisma } from "@/prisma";
 import { Card, Deck } from "@prisma/client";
 import axios from "axios";
 import { BookOpen, Info, RotateCw } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface Props {
@@ -19,6 +19,7 @@ export default function LearningPage({ params: { id } }: Props) {
   const [isFlipped, setIsFlipped] = useState(false);
   const [animateKey, setAnimateKey] = useState(0);
   const [isSubmitting, setSubmitting] = useState(false);
+  const router = useRouter();
 
   const updateLastStudied = async () => {
     try {
@@ -34,8 +35,13 @@ export default function LearningPage({ params: { id } }: Props) {
     try {
       const response = await axios.get(`/api/cards/${id}?nextReview=true`);
       setCards(response.data);
-      if (response.data) {
+      if (response.data.length) {
         updateLastStudied();
+      }
+      if (!response.data.length) {
+        setTimeout(() => {
+          router.push(`/decks/${id}`);
+        }, 300);
       }
     } catch (error) {
       console.log(error);

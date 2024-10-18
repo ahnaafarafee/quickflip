@@ -135,7 +135,7 @@ export default function LandingPage() {
                 />
                 <h3 className="text-xl font-semibold ">{testimonial.name}</h3>
                 <p className="text-sm">{testimonial.title}</p>
-                <p className=" italic mt-4">"{testimonial.quote}"</p>
+                <p className=" italic mt-4">&quot;{testimonial.quote}&quot;</p>
               </div>
             ))}
           </div>

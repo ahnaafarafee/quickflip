@@ -57,7 +57,7 @@ const StudyPage = () => {
             {deck.cards.length <= 0 ? (
               <div className="flex gap-2 badge-ghost p-2 rounded-lg mt-2 mb-2">
                 <Check className="text-success" />
-                <span>You're all set for today! Check back tomorrow.</span>
+                <span>You&apos;re all set for today! Check back tomorrow.</span>
               </div>
             ) : (
               <div>

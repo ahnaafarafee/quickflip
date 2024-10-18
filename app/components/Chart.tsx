@@ -11,7 +11,6 @@ const renderCustomizedLabel = ({
   innerRadius,
   outerRadius,
   percent,
-  index,
   name,
   value,
 }: any) => {

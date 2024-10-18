@@ -32,6 +32,7 @@ export default function CustomDeckPage() {
         const response = await axios.get("/api/decks");
         setDecks(response.data);
       } catch (error) {
+        console.log(error);
         setError("Error fetching decks");
       } finally {
         setIsLoading(false); // End loading
@@ -73,10 +74,12 @@ export default function CustomDeckPage() {
         <DecksLoadingSkeleton />
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {decks.length <= 0 && <span>You haven't created any decks yet!</span>}
+          {decks.length <= 0 && (
+            <span>You haven&apos;t created any decks yet!</span>
+          )}
 
           {decks.map((deck) => (
-            <Link href={`/decks/${deck.id}`}>
+            <Link key={deck.id} href={`/decks/${deck.id}`}>
               <div
                 key={deck.id}
                 className="dark:bg-gray-900 shadow-lg rounded-lg p-6 transition-all duration-300 hover:scale-105 hover:cursor-pointer hover:shadow-xl"

@@ -45,7 +45,7 @@ const EditCardPage = ({ params: { id } }: Props) => {
       }
     };
     fetchCard();
-  }, [id]);
+  }, [id, deckId]);
 
   const onSubmit = async (values: z.infer<typeof cardFormSchema>) => {
     console.log(values);
