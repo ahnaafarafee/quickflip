@@ -19,6 +19,7 @@ export async function GET(
 
   const deck = await prisma.deck.findUnique({
     where: { id: params.id, userId: user.publicMetadata.userId as string },
+    include: { cards: true },
   });
 
   if (!deck)

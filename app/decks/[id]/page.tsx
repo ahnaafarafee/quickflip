@@ -1,6 +1,7 @@
 "use client";
 
 import BackButton from "@/app/components/BackButton";
+import Chart from "@/app/components/Chart";
 import SingleDeckLoadingSkeleton from "@/app/components/SingleDeckLoadingSkeleton";
 import { deckFormSchema } from "@/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,15 +20,25 @@ interface Props {
   params: { id: string };
 }
 
+interface DeckWithCardsArr extends Deck {
+  cards: Card[];
+}
+
 const SingleDeckPage = ({ params: { id } }: Props) => {
-  const [deck, setDeck] = useState<Deck>();
-  const [cards, setCards] = useState<Card[]>([]);
+  const [deck, setDeck] = useState<DeckWithCardsArr>();
+  // const [cards, setCards] = useState<Card[]>([]);
   const [error, setError] = useState("");
   const [formError, serFormError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setSubmitting] = useState(false);
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [easeFactorValues, setEaseFactorValues] = useState([
+    { name: "New", value: 0 },
+    { name: "Familiar", value: 0 },
+    { name: "Learned", value: 0 },
+    { name: "Mastered", value: 0 },
+  ]);
 
   const router = useRouter();
 
@@ -57,40 +68,48 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
     }
   };
 
-  const fetchCards = async () => {
+  const fetchDeck = async () => {
+    setIsLoading(true);
     try {
-      const response = await axios.get(`/api/cards/${id}`);
-      setCards(response.data);
+      const response = await axios.get(`/api/decks/${id}`);
+      setDeck(response.data);
+      form.reset({
+        name: response.data.name,
+        tags: response.data.tags,
+      });
+      setIsFormSubmitted(false); // Reset form submission state
+      const newEaseFactors = [
+        { name: "New", value: 0 },
+        { name: "Familiar", value: 0 },
+        { name: "Learned", value: 0 },
+        { name: "Mastered", value: 0 },
+      ];
+
+      response.data.cards.forEach((card: Card) => {
+        if (card.easeFactor === 1) {
+          newEaseFactors[0].value += 1;
+        } else if (card.easeFactor === 2) {
+          newEaseFactors[1].value += 1;
+        } else if (card.easeFactor === 3) {
+          newEaseFactors[2].value += 1;
+        } else if (card.easeFactor === 4) {
+          newEaseFactors[3].value += 1;
+        }
+      });
+
+      setEaseFactorValues(newEaseFactors);
     } catch (error) {
-      console.log(error);
+      if (error instanceof AxiosError) {
+        setError(error.response?.data.message || "Error Fetching Deck Info!");
+      } else {
+        setError("Error Fetching Deck Info!");
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
-
   useEffect(() => {
-    const fetchDeck = async () => {
-      setIsLoading(true);
-      try {
-        const response = await axios.get(`/api/decks/${id}`);
-        setDeck(response.data);
-        form.reset({
-          name: response.data.name,
-          tags: response.data.tags,
-        });
-        setIsFormSubmitted(false); // Reset form submission state
-      } catch (error) {
-        if (error instanceof AxiosError) {
-          setError(error.response?.data.message || "Error Fetching Deck Info!");
-        } else {
-          setError("Error Fetching Deck Info!");
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchDeck();
-
-    fetchCards();
   }, [id, isFormSubmitted]);
 
   if (isLoading) {
@@ -99,10 +118,13 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
 
   if (error) return notFound();
 
+  console.log(easeFactorValues);
+
   return (
     <div className="min-h-screen dark:bg-gray-950 dark:text-gray-100 p-8">
       <div className="max-w-3xl mx-auto dark:bg-gray-900 p-6 rounded-lg shadow-lg">
         <BackButton />
+        {deck ? <div></div> : <span>No deck selected</span>}
         <div className="flex items-center gap-2 mb-2">
           <h2 className="text-2xl font-semibold">{deck?.name}</h2>
           <label htmlFor="modal_edit">
@@ -116,136 +138,155 @@ const SingleDeckPage = ({ params: { id } }: Props) => {
           <strong>Tags:</strong> {deck?.tags || "None"}
         </p>
         <p className="light:text-gray-600 mb-2">
-          <strong>Created At:</strong>{" "}
+          <strong>Created At:</strong>
           {deck?.createdAt ? new Date(deck.createdAt).toDateString() : "N/A"}
         </p>
         <p className="light:text-gray-600 mb-2">
-          <strong>Updated At:</strong>{" "}
+          <strong>Updated At:</strong>
           {deck?.updatedAt ? new Date(deck.updatedAt).toDateString() : "N/A"}
         </p>
         <p className="light:text-gray-600 mb-2">
-          <strong>Last Studied:</strong>{" "}
+          <strong>Last Studied:</strong>
           {deck?.updatedAt ? new Date(deck.updatedAt).toDateString() : "N/A"}
         </p>
+        <Chart data={easeFactorValues} />
+        <div className="flex flex-col md:flex-row gap-2 md:mt-4">
+          <span className="flex md:justify-center items-center gap-1">
+            <div className="h-3 w-3 bg-error"></div> New:
+            {easeFactorValues[0].value}
+          </span>
+          <span className="flex md:justify-center items-center gap-1">
+            <div className="h-3 w-3 bg-warning"></div> Familiar:
+            {easeFactorValues[1].value}
+          </span>
+          <span className="flex md:justify-center items-center gap-1">
+            <div className="h-3 w-3 bg-info"></div> Learned:
+            {easeFactorValues[2].value}
+          </span>
+          <span className="flex md:justify-center items-center gap-1">
+            <div className="h-3 w-3 bg-success"></div> Mastered:
+            {easeFactorValues[3].value}
+          </span>
+        </div>
+        <div className="mt-2">Total Cards: {deck?.cards.length}</div>
         <button className="btn-default mt-4 mb-4">
           <Link href={`/decks/learn/${id}`}>Study Now</Link>
         </button>
         <p className="text-gray-400">Complete Deck:</p>
-        {cards.length <= 0 ? (
+        {!deck?.cards.length && (
           <span>
-            No cards available.{" "}
+            No cards available.
             <Link className="btn-link" href="/create">
               Create Now
             </Link>
           </span>
-        ) : (
-          cards.map((card) => (
-            <div
-              key={card.id}
-              className="collapse collapse-arrow bg-base-200 mt-2"
-            >
-              <input type="radio" name="my-accordion-2" />
-              <div className="collapse-title text-xl font-medium">
-                {card.front}
+        )}
+        {deck?.cards.map((card) => (
+          <div
+            key={card.id}
+            className="collapse collapse-arrow bg-base-200 mt-2"
+          >
+            <input type="radio" name="my-accordion-2" />
+            <div className="collapse-title text-xl font-medium">
+              {card.front}
+            </div>
+            <div className="collapse-content">
+              <div className="flex mb-2 gap-2">
+                <SquarePen
+                  className="h-5 w-5 text-info cursor-pointer"
+                  onClick={() => router.push(`/edit/${card.id}?deckId=${id}`)}
+                />
+                <button disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <Spinner />
+                  ) : (
+                    <Trash2
+                      className="h-5 w-5 text-error cursor-pointer"
+                      onClick={async () => {
+                        try {
+                          setSubmitting(true);
+                          await axios
+                            .delete(`/api/cards/${card.id}?deckId=${id}`)
+                            .then(() => fetchDeck());
+
+                          setShowToast(true);
+                          setTimeout(() => setShowToast(false), 3000); // Hide toast after 3 seconds
+                          setSubmitting(false);
+                        } catch (error) {
+                          setSubmitting(false);
+                          console.log(error);
+                        }
+                      }}
+                    />
+                  )}
+                </button>
               </div>
-              <div className="collapse-content">
-                <div className="flex mb-2 gap-2">
-                  <SquarePen
-                    className="h-5 w-5 text-info cursor-pointer"
-                    onClick={() => router.push(`/edit/${card.id}?deckId=${id}`)}
-                  />
-                  <button disabled={isSubmitting}>
-                    {isSubmitting ? (
-                      <Spinner />
-                    ) : (
-                      <Trash2
-                        className="h-5 w-5 text-error cursor-pointer"
-                        onClick={async () => {
-                          try {
-                            setSubmitting(true);
-                            await axios
-                              .delete(`/api/cards/${card.id}?deckId=${id}`)
-                              .then(() => fetchCards());
+              <div className="text-gray-400">Stats:</div>
 
-                            setShowToast(true);
-                            setTimeout(() => setShowToast(false), 3000); // Hide toast after 3 seconds
-                            setSubmitting(false);
-                          } catch (error) {
-                            setSubmitting(false);
-                            console.log(error);
-                          }
-                        }}
-                      />
-                    )}
-                  </button>
-                </div>
-                <div className="text-gray-400">Stats:</div>
-
-                <div>
-                  {/* Display the number of days until the card's next review date. 
+              <div>
+                {/* Display the number of days until the card's next review date. 
                  - If the card is due today, display "today".
                  - If the card is due in 1 day, display "1 day".
                  - Otherwise, display the number of days remaining followed by "days".
                  !!! used: immediately-invoked function expression (IIFE) 
                 */}
-                  Card due in:
-                  <span className="ml-1 mr-1 font-bold">
-                    {(() => {
-                      const daysLeft = Math.ceil(
-                        (new Date(card.nextReview).getTime() -
-                          new Date().getTime()) /
-                          (1000 * 60 * 60 * 24)
-                      );
-                      if (daysLeft <= 0) return "today";
-                      if (daysLeft === 1) return "1 day";
-                      return `${daysLeft} days`;
-                    })()}
-                  </span>
-                </div>
+                Card due in:
+                <span className="ml-1 mr-1 font-bold">
+                  {(() => {
+                    const daysLeft = Math.ceil(
+                      (new Date(card.nextReview).getTime() -
+                        new Date().getTime()) /
+                        (1000 * 60 * 60 * 24)
+                    );
+                    if (daysLeft <= 0) return "today";
+                    if (daysLeft === 1) return "1 day";
+                    return `${daysLeft} days`;
+                  })()}
+                </span>
+              </div>
 
-                <div className="flex gap-2 text-sm mb-4">
-                  Next Review:
-                  <p className="font-bold">
-                    {new Date(card.nextReview).toDateString()}
-                  </p>
-                </div>
+              <div className="flex gap-2 text-sm mb-4">
+                Next Review:
+                <p className="font-bold">
+                  {new Date(card.nextReview).toDateString()}
+                </p>
+              </div>
+              <div>
                 <div>
-                  <div>
-                    {card.easeFactor === 1 && (
-                      <div className="badge badge-error">
-                        <BookmarkCheck className="h-3 w-3" />
-                        New
-                      </div>
-                    )}
-                    {card.easeFactor === 2 && (
-                      <div className="badge badge-warning">
-                        <BookmarkCheck className="h-3 w-3" />
-                        Familiar
-                      </div>
-                    )}
-                    {card.easeFactor === 3 && (
-                      <div className="badge badge-info">
-                        <BookmarkCheck className="h-3 w-3" />
-                        Learned
-                      </div>
-                    )}
-                    {card.easeFactor === 4 && (
-                      <div className="badge badge-success">
-                        <BookmarkCheck className="h-3 w-3" />
-                        Mastered
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <div className="divider"></div>
-                  <p className="text-gray-400">Content:</p>
-                  <p> {card.back}</p>
+                  {card.easeFactor === 1 && (
+                    <div className="badge badge-error">
+                      <BookmarkCheck className="h-3 w-3" />
+                      New
+                    </div>
+                  )}
+                  {card.easeFactor === 2 && (
+                    <div className="badge badge-warning">
+                      <BookmarkCheck className="h-3 w-3" />
+                      Familiar
+                    </div>
+                  )}
+                  {card.easeFactor === 3 && (
+                    <div className="badge badge-info">
+                      <BookmarkCheck className="h-3 w-3" />
+                      Learned
+                    </div>
+                  )}
+                  {card.easeFactor === 4 && (
+                    <div className="badge badge-success">
+                      <BookmarkCheck className="h-3 w-3" />
+                      Mastered
+                    </div>
+                  )}
                 </div>
               </div>
+              <div>
+                <div className="divider"></div>
+                <p className="text-gray-400">Content:</p>
+                <p> {card.back}</p>
+              </div>
             </div>
-          ))
-        )}
+          </div>
+        ))}
       </div>
       {showToast && (
         <div className="toast">
