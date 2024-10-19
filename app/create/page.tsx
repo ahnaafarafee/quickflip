@@ -115,8 +115,7 @@ const CreateCardPage = () => {
           >
             Back
           </label>
-          <input
-            type="text"
+          <textarea
             id="back"
             {...form.register("back")}
             className="input-field"
