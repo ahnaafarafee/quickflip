@@ -77,11 +77,9 @@ export default function LearningPage({ params: { id } }: Props) {
           easeFactor,
         })
         .finally(() => setSubmitting(false));
-      // Remove the card that was just studied
       setCards((prevCards) =>
         prevCards.filter((_, index) => index !== currentCardIndex)
       );
-      // Reset the index appropriately
       setCurrentCardIndex((prevIndex) => (prevIndex === 0 ? 0 : prevIndex - 1));
       fetchCards();
     } catch (error) {
@@ -99,7 +97,7 @@ export default function LearningPage({ params: { id } }: Props) {
       {isLoading ? (
         <Spinner />
       ) : (
-        <div className="min-h-screen dark:bg-gray-950 flex flex-col items-center justify-center px-4 overflow-hidden">
+        <div className="w-full max-w-[350px] flex flex-col items-center justify-center">
           <h1 className="text-2xl mb-4 dark:text-white flex justify-center items-center gap-2">
             <BookOpen /> Learning:
             <Link
@@ -129,7 +127,7 @@ export default function LearningPage({ params: { id } }: Props) {
             </>
           ) : (
             <>
-              <div className="w-full max-w-md h-auto mb-4 [perspective:1000px]">
+              <div className="w-full mb-4">
                 <div className="ml-2 md:!ml-0">
                   <BackButton />
                 </div>
@@ -139,7 +137,7 @@ export default function LearningPage({ params: { id } }: Props) {
                   }`}
                   onClick={handleFlip}
                 >
-                  <div className="absolute inset-0 [backface-visibility:hidden]">
+                  <div className="absolute inset-0 w-full h-full [backface-visibility:hidden]">
                     <div className="w-full h-full bg-white dark:bg-gray-900 bg-opacity-20 backdrop-filter backdrop-blur-lg rounded-2xl shadow-xl flex items-center justify-center p-6">
                       <p
                         key={animateKey}
@@ -149,11 +147,11 @@ export default function LearningPage({ params: { id } }: Props) {
                       </p>
                     </div>
                   </div>
-                  <div className="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)]">
+                  <div className="absolute inset-0 w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)]">
                     <div className="w-full h-full bg-white dark:bg-gray-900 bg-opacity-20 backdrop-filter backdrop-blur-lg rounded-2xl shadow-xl flex items-start justify-center p-6 overflow-y-auto">
                       <p
                         key={animateKey}
-                        className="text-2xl font-semibold text-pretty dark:text-white animate-fade-in"
+                        className="text-xl text-pretty dark:text-white animate-fade-in"
                       >
                         {currentCard?.back}
                       </p>
@@ -161,7 +159,7 @@ export default function LearningPage({ params: { id } }: Props) {
                   </div>
                 </div>
               </div>
-              <div className="flex justify-center items-center w-full max-w-sm mt-4">
+              <div className="w-full flex justify-center items-center mt-4">
                 <button
                   onClick={handleFlip}
                   className="flex items-center px-4 py-4 mt-2 bg-white dark:bg-gray-900 bg-opacity-20 dark:text-white rounded-full hover:bg-opacity-30 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
@@ -171,35 +169,41 @@ export default function LearningPage({ params: { id } }: Props) {
                 </button>
               </div>
               {isFlipped && (
-                <div className="flex space-x-2 mt-4 mb-4">
-                  <button
-                    className="btn-default"
-                    disabled={isSubmitting}
-                    onClick={() => handleNext(1)}
-                  >
-                    {isSubmitting ? <Spinner /> : "Again"}
-                  </button>
-                  <button
-                    className="btn-default"
-                    disabled={isSubmitting}
-                    onClick={() => handleNext(2)}
-                  >
-                    {isSubmitting ? <Spinner /> : "Hard"}
-                  </button>
-                  <button
-                    className="btn-default"
-                    disabled={isSubmitting}
-                    onClick={() => handleNext(3)}
-                  >
-                    {isSubmitting ? <Spinner /> : "Easy"}
-                  </button>
-                  <button
-                    className="btn-default"
-                    disabled={isSubmitting}
-                    onClick={() => handleNext(4)}
-                  >
-                    {isSubmitting ? <Spinner /> : "Very Easy"}
-                  </button>
+                <div className="w-full flex justify-center space-x-2 mt-4 mb-4">
+                  {isSubmitting ? (
+                    <Spinner />
+                  ) : (
+                    <>
+                      <button
+                        className="btn-default"
+                        disabled={isSubmitting}
+                        onClick={() => handleNext(1)}
+                      >
+                        Again
+                      </button>
+                      <button
+                        className="btn-default"
+                        disabled={isSubmitting}
+                        onClick={() => handleNext(2)}
+                      >
+                        Hard
+                      </button>
+                      <button
+                        className="btn-default"
+                        disabled={isSubmitting}
+                        onClick={() => handleNext(3)}
+                      >
+                        Easy
+                      </button>
+                      <button
+                        className="btn-default"
+                        disabled={isSubmitting}
+                        onClick={() => handleNext(4)}
+                      >
+                        Very Easy
+                      </button>
+                    </>
+                  )}
                 </div>
               )}
             </>

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { playFairDisplay } from "../fonts";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { SignInButton } from "@clerk/nextjs";
 
 const testimonials = [
   {
@@ -77,7 +78,7 @@ export default function LandingPage() {
                 </p>
                 <div className="flex flex-col space-y-6 sm:flex-row sm:space-y-0 sm:space-x-4">
                   <Button size="3">
-                    <Link href="/signup">Get Started</Link>
+                    <SignInButton />
                     <ArrowRightIcon />
                   </Button>
                   <button className="text-blue-500 border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900 text-lg px-8 py-3 rounded-full transition-all duration-200">
